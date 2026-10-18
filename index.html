@@ -1,0 +1,673 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#09131a" />
+  <meta name="description" content="Poker Lab: learn six-max Texas Hold'em at a realistic table with transparent, on-demand mathematical coaching." />
+  <title>Poker Lab · Texas Hold’em Training</title>
+  <style>
+:root{color-scheme:dark;--bg:#091218;--panel:#111f28;--line:#263a40;--muted:#8e9fa5;--ink:#f1f4ef;--gold:#d1b577;--green:#123e38;--green-2:#1b6152;--lightgreen:#9ec7a7;--danger:#e3a193}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:'DM Sans',-apple-system,BlinkMacSystemFont,Arial,sans-serif}button,input{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.4}.hidden{display:none!important}
+.app-shell{width:min(1580px,100%);margin:auto;padding:0 29px 24px}.topbar{height:86px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #1e3035}.identity{display:flex;gap:13px;align-items:center}.mark{font-size:29px;color:var(--gold);border:1px solid #5e6652;border-radius:11px;width:45px;height:45px;display:grid;place-items:center}.wordmark{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;letter-spacing:1.7px}.wordmark span{color:var(--gold)}.micro{font-size:9px;color:#8ea3a4;letter-spacing:1.9px;margin-top:2px}.topnav{display:flex;align-items:center;gap:14px}.live-dot{background:#8fd9a9;width:7px;height:7px;border-radius:100%;box-shadow:0 0 11px #52cb8a}.setting-label{font-size:11px;letter-spacing:1.7px;font-weight:800}.top-pill{font-size:10px;letter-spacing:1px;padding:9px 14px;border:1px solid #32464a;border-radius:50px;color:#b6c7c8}.help-button{background:#182730;border:1px solid #395159;color:#bdd0cb;width:30px;height:30px;border-radius:100%;font-weight:700}.workspace{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:25px;margin-top:27px}.play-column{min-width:0}.table-toolbar{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:24px}.eyebrow{font-size:10px;letter-spacing:2px;color:var(--gold);font-weight:800}.table-toolbar h1{font:700 clamp(22px,2.6vw,33px)/1.12 'Space Grotesk',sans-serif;margin:9px 0 0;letter-spacing:-.9px}.mode-switch{background:#15232b;border:1px solid #2a3b44;border-radius:9px;display:flex;padding:4px;gap:2px}.mode-switch button{background:transparent;border:0;color:#91a4a9;font-size:10px;letter-spacing:1.1px;font-weight:800;border-radius:6px;padding:11px 14px}.mode-switch button.selected{background:#35574d;color:#d8f3dc}.game-surface{background:radial-gradient(ellipse at 50% 50%,#284043 0%,#101d24 69%);border:1px solid #2b3e44;min-height:524px;border-radius:15px;display:grid;place-items:center;position:relative;overflow:hidden;padding:56px 28px}.felt{position:relative;background:radial-gradient(ellipse at 50% 54%,#185a4c,#123d37 61%,#0b312c);border-radius:50% / 48%;width:100%;max-width:960px;height:400px;box-shadow:0 0 0 10px #322d25,0 0 0 15px #907b53,0 0 0 20px #14242a,0 30px 50px #06101070;isolation:isolate}.felt-line{position:absolute;inset:23px;border:1px solid #9cba9630;border-radius:50%}.felt-logo{position:absolute;left:50%;top:70%;transform:translate(-50%,-50%);font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:#b4d1b41d;letter-spacing:3px;white-space:nowrap}.felt-logo strong{color:#e1daaf28}.felt-logo span{display:block;text-align:center;font:700 8px 'DM Sans';letter-spacing:3px;margin-top:5px}.board-zone{position:absolute;top:45%;left:50%;transform:translate(-50%,-50%);text-align:center;width:80%}.pot-label{font-size:9px;letter-spacing:2.2px;color:#b2d2b4;font-weight:800}.pot-amount{font:700 28px 'Space Grotesk',sans-serif;color:#e3d4a8;margin:3px 0 11px}.board-cards{display:flex;gap:6px;justify-content:center;min-height:72px}.street-label{color:#95b6aa;font-size:10px;letter-spacing:1.5px;margin-top:13px}.card-face,.card-back,.card-placeholder{border-radius:5px;width:50px;height:70px;display:flex;align-items:center;justify-content:center;flex-direction:column;border:1px solid #dddfe1;flex-shrink:0}.card-face{background:#f8f5e9;color:#0c1921;box-shadow:1px 2px 4px #08211d44}.card-face.red{color:#c74443}.card-face .rank{font:700 21px 'Space Grotesk'}.card-face .suit{font-size:23px;line-height:1}.card-back{background:repeating-linear-gradient(45deg,#294b55,#294b55 3px,#18343e 3px,#18343e 6px);border:3px solid #d5dddc;outline:1px solid #29444b;outline-offset:-5px}.card-placeholder{background:#163d36aa;border:1px dashed #82ae9555}.seat{position:absolute;transform:translate(-50%,-50%);width:142px;z-index:2;display:flex;align-items:center;flex-direction:column;gap:4px}.seat-0{left:50%;top:99%}.seat-1{left:5%;top:74%}.seat-2{left:10%;top:16%}.seat-3{left:50%;top:-5%}.seat-4{left:90%;top:16%}.seat-5{left:95%;top:74%}.seat-card{width:132px;text-align:center;border:1px solid #385058;background:#14272d;border-radius:10px;padding:9px 8px 8px;box-shadow:0 4px 14px #020f11ab;position:relative}.seat.is-turn .seat-card{border-color:#d9c081;box-shadow:0 0 0 2px #bba66c55,0 7px 15px #061316}.seat.is-folded{opacity:.46}.seat.is-winner .seat-card{border-color:#9ee6b1}.player-name{font-size:12px;font-weight:800;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}.player-stack{font:700 13px 'Space Grotesk',sans-serif;color:#dfc98b;margin-top:3px}.player-meta{font-size:9px;letter-spacing:.8px;color:#a0b5b9;margin-top:4px}.seat-0 .seat-card{background:#263a35;border-color:#6c806d}.seat-hole{display:flex;justify-content:center;gap:5px}.seat-hole .card-face,.seat-hole .card-back{width:34px;height:47px}.seat-hole .rank{font-size:16px}.seat-hole .suit{font-size:15px}.dealer{position:absolute;right:1px;top:-9px;background:#eae5d6;color:#28352f;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:800;border:2px solid #d0c7ad}.seat-bet{position:absolute;background:#071e1cbf;border-radius:30px;border:1px solid #9bbd9973;font-size:11px;color:#f6dd9f;padding:4px 10px;white-space:nowrap;bottom:-25px}.seat-0 .seat-bet{bottom:auto;top:-27px}.action-area{padding:17px 0 3px}.hand-status{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:31px;margin-bottom:7px;font-size:13px;font-weight:700}.hand-status #status-bet{font-size:12px;color:#abbea9;font-weight:500}.controls{display:flex;gap:10px;min-height:58px}.action-button{flex:1;border:1px solid #3f5456;border-radius:9px;background:#1a3038;color:#e7ede9;font:800 12px 'DM Sans';letter-spacing:1.3px;padding:15px 8px;transition:background .14s}.action-button:hover{background:#2d474c}.action-button.primary{background:#cfb77a;border-color:#d7c68f;color:#19251e}.action-button.primary:hover{background:#eed393}.action-button.danger{color:#e6aea2;border-color:#755148;background:#2c2828}.action-button.next{background:#30594b;border-color:#6d9480;color:#e6f2e7}.result-line{color:#d8c99d;font-size:13px;line-height:1.6;margin-top:9px;min-height:20px}.raise-controls{background:#14252b;border:1px solid #2d4245;padding:12px 13px;border-radius:9px;margin-top:12px}.raise-caption{display:flex;justify-content:space-between;font-size:12px;color:#b2c3c1}.raise-caption strong{color:#ecd59b}.raise-controls input{width:100%;accent-color:#ddc183;margin:15px 0 9px}.raise-shortcuts{display:flex;gap:6px;flex-wrap:wrap}.raise-shortcuts button{background:#243941;color:#c4d3d3;border:1px solid #39545a;border-radius:6px;padding:7px 10px;font-size:11px}.bottom-footnote{color:#617b80;font-size:9px;letter-spacing:.8px;margin-top:18px;line-height:1.65}.analysis-column{display:flex;flex-direction:column;gap:16px}.panel{border:1px solid #273c42;border-radius:11px;background:linear-gradient(135deg,#13242c,#101d25);padding:20px}.panel-heading{display:flex;justify-content:space-between;align-items:center;gap:6px}.panel-heading h2{font:700 18px 'Space Grotesk',sans-serif;letter-spacing:-.4px;margin:6px 0}.coach-indicator,.hand-number{font-size:9px;letter-spacing:1px;color:#c1d6c5;border:1px solid #476356;border-radius:5px;padding:7px 9px;white-space:nowrap}.coach-body{min-height:211px}.coach-idle{display:flex;justify-content:center;align-items:center;flex-direction:column;text-align:center;min-height:211px}.coach-symbol{font-size:43px;color:#d1b577}.coach-idle h3{font-size:16px;margin:10px 0 1px}.coach-idle p{font-size:12px;line-height:1.7;color:var(--muted);max-width:230px}.analyze-button{width:100%;background:#cbb47d;color:#172b25;font-weight:800;border:0;border-radius:7px;padding:13px;font-size:12px;letter-spacing:.5px}.analyze-button:disabled{background:#657574}.integrity{margin-top:16px;border-top:1px solid #304448;padding-top:14px;display:flex;flex-direction:column;gap:6px}.integrity strong{font-size:9px;letter-spacing:1.5px;color:#90c7ac}.integrity span{font-size:11px;line-height:1.6;color:#94aab0}.analysis-metrics{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:13px 0}.metric{background:#1c3135;border-radius:8px;padding:11px}.metric span{display:block;color:#b5c3bb;font-size:10px}.metric strong{display:block;font:700 23px 'Space Grotesk',sans-serif;margin-top:4px;color:#e6d4a6}.coach-body h3{font-size:14px;margin:14px 0 7px}.coach-body p{font-size:11.5px;line-height:1.65;color:#c7d2d0;margin:8px 0}.caveat{font-size:10px!important;color:#d2b68b!important;padding:10px;background:#473b253e;border-left:2px solid #cbb47d;border-radius:4px}.panel-log{min-height:180px}.hand-log{margin-top:10px;max-height:220px;overflow-y:auto;scrollbar-width:thin}.log-row{font-size:11px;color:#b7c8c7;line-height:1.5;padding:7px 2px;border-bottom:1px solid #22363b}.log-row:last-child{border:0}.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat-tile{border:1px solid #2c4045;background:#12242a;border-radius:9px;padding:12px 10px}.stat-tile span{color:#88a4a6;font-size:9px;letter-spacing:1.2px}.stat-tile strong{display:block;font:700 24px 'Space Grotesk',sans-serif;margin-top:6px}dialog{max-width:480px;width:calc(100% - 26px);border:1px solid #54716c;border-radius:12px;background:#152830;color:#eff4ee;padding:24px;box-shadow:0 20px 100px #000a}dialog::backdrop{background:#0009}.dialog-title{display:flex;justify-content:space-between;align-items:center}.dialog-title h2{font-family:'Space Grotesk',sans-serif;font-size:22px}.dialog-title button{background:none;border:none;color:white;font-size:25px}.dialog-title+p,dialog p{line-height:1.65;font-size:13px;color:#c9d9d5}
+@media(max-width:1120px){.workspace{grid-template-columns:1fr}.analysis-column{display:grid;grid-template-columns:1.15fr 1fr;gap:14px}.stats-grid{grid-column:1/-1}.game-surface{min-height:550px}.felt{height:415px}.seat-0{top:99%}}
+@media(max-width:650px){.app-shell{padding:0 12px 24px}.topbar{height:67px}.wordmark{font-size:16px}.micro{font-size:7px}.mark{height:36px;width:36px;font-size:23px}.topnav{gap:7px}.top-pill{display:none}.setting-label{font-size:9px}.workspace{margin-top:20px;gap:15px}.table-toolbar{align-items:start;flex-direction:column;gap:14px;margin-bottom:18px}.table-toolbar h1{font-size:25px;margin-top:4px}.mode-switch{width:100%}.mode-switch button{flex:1;padding:12px 8px}.game-surface{padding:50px 8px;min-height:405px;border-radius:11px}.felt{height:275px;border-radius:50%;box-shadow:0 0 0 6px #322d25,0 0 0 9px #907b53,0 0 0 12px #14242a,0 17px 28px #06101070}.felt-line{inset:12px}.felt-logo{font-size:14px;top:74%}.felt-logo span{font-size:6px}.board-zone{top:46%;width:90%}.pot-label{font-size:8px}.pot-amount{font-size:22px;margin:0 0 7px}.board-cards{gap:3px;min-height:45px}.board-cards .card-face,.board-cards .card-placeholder{height:46px;width:30px;border-radius:4px}.board-cards .rank{font-size:16px}.board-cards .suit{font-size:14px}.street-label{font-size:8px;margin-top:5px}.seat{width:86px}.seat-card{width:82px;padding:6px 4px;border-radius:7px}.player-name{font-size:10px}.player-stack{font-size:11px;margin-top:1px}.player-meta{font-size:7px;margin-top:3px}.seat-hole{gap:2px}.seat-hole .card-face,.seat-hole .card-back{height:29px;width:22px;border-radius:3px}.seat-hole .card-back{border-width:2px;outline-offset:-3px}.seat-hole .rank{font-size:11px}.seat-hole .suit{font-size:10px}.seat-0{top:103%}.seat-1{top:70%;left:7%}.seat-2{top:9%;left:16%}.seat-3{top:-9%}.seat-4{top:9%;left:84%}.seat-5{top:70%;left:93%}.dealer{height:17px;width:17px;font-size:8px;top:-8px;right:-5px}.seat-bet{font-size:9px;padding:2px 6px;bottom:-19px}.seat-0 .seat-bet{top:-19px}.controls{gap:6px;min-height:49px}.action-button{font-size:10px;letter-spacing:.4px;padding:10px 3px}.hand-status{font-size:11px}.hand-status #status-bet{font-size:10px}.analysis-column{display:flex}.panel{padding:16px}.coach-body{min-height:170px}.coach-idle{min-height:170px}.bottom-footnote{font-size:8px}}
+@media(max-width:385px){.felt{height:245px}.game-surface{min-height:384px}.board-cards .card-face,.board-cards .card-placeholder{width:27px;height:42px}.seat-2{left:17%}.seat-4{left:83%}.seat-1{left:10%}.seat-5{left:90%}}
+
+/* Fast in-context coaching, shown near betting buttons on a phone. */
+.quick-coach{display:none}
+@media(max-width:650px){
+  .quick-coach:not(.hidden){display:block;margin:0 0 12px;background:#15272b;border:1px solid #49685d;border-radius:9px;padding:10px 12px}
+  .quick-coach button{width:100%;font-size:12px;letter-spacing:.2px;border:0;border-radius:6px;background:#2b4c43;color:#e8ead2;padding:11px;font-weight:800}
+  .quick-coach-head{font-size:10px;font-weight:800;color:#d4bb80;letter-spacing:1.2px;margin-bottom:7px}
+  .quick-coach-numbers{display:flex;gap:8px;margin-bottom:8px}
+  .quick-coach-numbers span{flex:1;background:#243a3b;padding:8px;border-radius:6px;font-size:11px;color:#dbe7dc}
+  .quick-coach p{font-size:11px;line-height:1.55;color:#c3d1cc;margin:8px 0 0}
+  .quick-coach small{color:#d0b98c;font-size:9px;line-height:1.5;display:block;margin-top:7px}
+}
+</style>
+</head>
+<body>
+  <div id="app" class="app-shell">
+    <header class="topbar">
+      <div class="identity"><div class="mark">♠</div><div><div class="wordmark">POKER<span>LAB</span></div><div class="micro">THE THINKING PLAYER'S TABLE</div></div></div>
+      <div class="topnav"><span class="live-dot"></span><span class="setting-label">6-MAX CASH</span><span class="top-pill">$1 / $2 · NO RAKE</span><button id="rules" class="help-button" title="About this build" aria-label="About this build">?</button></div>
+    </header>
+    <main class="workspace">
+      <section class="play-column">
+        <div class="table-toolbar">
+          <div><div class="eyebrow">TRAINING TABLE 01</div><h1>Make the right move.</h1></div>
+          <div class="mode-switch" role="group" aria-label="Coaching mode"><button data-mode="play">PLAY</button><button data-mode="coach" class="selected">COACH</button><button data-mode="training">TRAIN</button></div>
+        </div>
+        <div class="game-surface">
+          <div class="felt" aria-label="Six-player Texas Hold'em table">
+            <div class="felt-line"></div>
+            <div class="felt-logo">POKER <strong>LAB</strong><span>NO LIMIT HOLD'EM</span></div>
+            <div id="players"></div>
+            <div class="board-zone">
+              <div class="pot-label">TOTAL POT</div><div id="pot" class="pot-amount">$0</div>
+              <div id="board" class="board-cards"></div>
+              <div id="street" class="street-label">PREFLOP</div>
+            </div>
+          </div>
+        </div>
+        <div class="action-area">
+          <div class="hand-status"><span id="turn-status">Dealing...</span><span id="status-bet"></span></div>
+          <div id="quick-coach" class="quick-coach hidden"></div>
+          <div id="decision-controls" class="controls"></div>
+          <div id="raise-controls" class="raise-controls hidden"><div class="raise-caption"><label for="raise-range">Raise to</label><strong id="raise-total">$6</strong></div><input id="raise-range" type="range" step="1" min="4" max="200" value="6"/><div class="raise-shortcuts"><button data-pct="0.33">⅓ pot</button><button data-pct="0.5">½ pot</button><button data-pct="0.75">¾ pot</button><button data-pct="1">Pot</button><button id="max-bet">All in</button></div></div>
+          <div id="result" class="result-line"></div>
+        </div>
+        <div class="bottom-footnote">SIMULATED CHIPS ONLY · OPPONENTS USE LIMITED BASELINE STRATEGIES · THIS IS AN EARLY PLAYABLE PROTOTYPE</div>
+      </section>
+      <aside class="analysis-column">
+        <div class="panel panel-coach">
+          <div class="panel-heading"><div><div class="eyebrow">LEARNING SYSTEM</div><h2>Decision coach</h2></div><span class="coach-indicator" id="coach-mode-badge">ON DEMAND</span></div>
+          <div id="coach-view" class="coach-body"><div class="coach-idle"><span class="coach-symbol">◎</span><h3>Think before you act.</h3><p>When it's your turn, tap Analyze to see the math behind your decision.</p></div></div>
+          <button id="analyze" class="analyze-button">◎ Analyze this decision</button>
+          <div class="integrity"><strong>HONEST BY DESIGN</strong><span>The math is computed. The explanation states its assumptions. We don't label approximations as GTO.</span></div>
+        </div>
+        <div class="panel panel-log">
+          <div class="panel-heading"><div><div class="eyebrow">LIVE HAND</div><h2>Action history</h2></div><span id="hand-index" class="hand-number">#001</span></div>
+          <div id="log" class="hand-log" aria-live="polite"></div>
+        </div>
+        <div class="stats-grid"><div class="stat-tile"><span>HANDS</span><strong id="hands-stat">0</strong></div><div class="stat-tile"><span>VPIP</span><strong id="vpip-stat">—</strong></div><div class="stat-tile"><span>PFR</span><strong id="pfr-stat">—</strong></div></div>
+      </aside>
+    </main>
+  </div>
+  <dialog id="about-dialog"><div class="dialog-title"><h2>About Poker Lab v0.1</h2><button id="close-dialog" aria-label="Close">×</button></div><p>This first build is a six-player, no-rake, simulated-money cash game with legal action checks, all-ins, side pots, hand rankings, and basic computer opponents.</p><p><strong>Coach:</strong> exact immediate pot odds and Monte Carlo showdown-equity estimates against uniformly random opponent cards. It does not yet know actual opponent betting ranges or provide solver-verified GTO advice.</p><p><strong>Next:</strong> tested preflop ranges, stronger bot benchmarks, complete hand replay, tournament rules, and a persistent account system.</p><p>This is a learning prototype, not a real-money gambling application.</p></dialog>
+  <script>
+// Poker Lab's deterministic, dependency-free game engine.
+// Monetary units are integer simulated dollars/chips. No rake and no real-money functionality.
+const RANKS = '23456789TJQKA';
+const SUITS = ['s','h','d','c'];
+const cardName = c => c ? RANKS[c.r-2]+c.s : '??';
+const makeDeck = () => {
+  const d=[];
+  for(let r=2;r<=14;r++) for(const s of SUITS) d.push({r,s});
+  return d;
+};
+function shuffle(cards, random=Math.random) {
+  for(let i=cards.length-1;i>0;i--) {
+    const j=Math.floor(random()*(i+1));
+    [cards[i], cards[j]]=[cards[j],cards[i]];
+  }
+  return cards;
+}
+const desc = (a,b)=>b-a;
+const straightHigh = ranks => {
+  const u=new Set(ranks);
+  if(u.has(14)) u.add(1);
+  for(let top=14;top>=5;top--) if([0,1,2,3,4].every(off=>u.has(top-off))) return top;
+  return 0;
+};
+const handCategories = ['High card','One pair','Two pair','Three of a kind','Straight','Flush','Full house','Four of a kind','Straight flush'];
+function evaluate(cards) {
+  if(cards.length<5 || cards.length>7) throw new Error('Evaluate requires 5–7 cards');
+  const counts=new Map(), suits=new Map();
+  for(const c of cards) {
+    counts.set(c.r, (counts.get(c.r)||0)+1);
+    if(!suits.has(c.s)) suits.set(c.s,[]);
+    suits.get(c.s).push(c.r);
+  }
+  const ranks=[...counts.keys()].sort(desc);
+  const flushRanks=[...suits.values()].find(a=>a.length>=5);
+  if(flushRanks) {
+    const sf=straightHigh(flushRanks);
+    if(sf) return [8,sf];
+  }
+  const quads=ranks.filter(r=>counts.get(r)===4);
+  if(quads.length) return [7,quads[0],ranks.find(r=>r!==quads[0])];
+  const trips=ranks.filter(r=>counts.get(r)>=3);
+  if(trips.length) {
+    const pairForFull=ranks.find(r=>r!==trips[0] && counts.get(r)>=2);
+    if(pairForFull) return [6,trips[0],pairForFull];
+  }
+  if(flushRanks) return [5,...flushRanks.sort(desc).slice(0,5)];
+  const straight=straightHigh(ranks);
+  if(straight) return [4,straight];
+  if(trips.length) return [3,trips[0],...ranks.filter(r=>r!==trips[0]).slice(0,2)];
+  const pairs=ranks.filter(r=>counts.get(r)>=2);
+  if(pairs.length>=2) return [2,pairs[0],pairs[1],ranks.find(r=>r!==pairs[0]&&r!==pairs[1])];
+  if(pairs.length) return [1,pairs[0],...ranks.filter(r=>r!==pairs[0]).slice(0,3)];
+  return [0,...ranks.slice(0,5)];
+}
+function compareHands(a,b) {
+  for(let i=0;i<Math.max(a.length,b.length);i++) {
+    const d=(a[i]||0)-(b[i]||0);
+    if(d) return Math.sign(d);
+  }
+  return 0;
+}
+function equityMonteCarlo(heroCards, board, opponentCount=1, trials=600, random=Math.random) {
+  if(!Array.isArray(heroCards)||heroCards.length!==2 || board.length>5) throw new Error('Invalid equity input');
+  if(!Number.isInteger(opponentCount)||opponentCount<1||opponentCount>8) throw new Error('Invalid opponent count');
+  const seen=new Set([...heroCards,...board].map(cardName));
+  if(seen.size!==heroCards.length+board.length) throw new Error('Duplicate cards');
+  const available=makeDeck().filter(c=>!seen.has(cardName(c)));
+  if(board.length+heroCards.length+2*opponentCount>52) throw new Error('Not enough cards');
+  let points=0, wins=0, ties=0;
+  for(let t=0;t<trials;t++) {
+    // Partial Fisher–Yates, ensuring new unknown holdings on every trial.
+    const deck=available.slice(), drawn=[];
+    const needed=5-board.length+2*opponentCount;
+    for(let i=0;i<needed;i++) {
+      const j=i+Math.floor(random()*(deck.length-i));
+      [deck[i],deck[j]]=[deck[j],deck[i]];
+      drawn.push(deck[i]);
+    }
+    const fullBoard=board.concat(drawn.slice(0,5-board.length));
+    const h=evaluate([...heroCards,...fullBoard]);
+    let lost=false, split=1;
+    for(let i=0;i<opponentCount;i++) {
+      const off=5-board.length+2*i;
+      const o=evaluate([...fullBoard, drawn[off],drawn[off+1]]);
+      const cmp=compareHands(h,o);
+      if(cmp<0) { lost=true; break; }
+      if(cmp===0) split++;
+    }
+    if(!lost) {points+=1/split; if(split===1) wins++;else ties++;}
+  }
+  return {equity:points/trials, winRate:wins/trials, tieRate:ties/trials, trials, opponentCount};
+}
+function nextIn(index, predicate) {
+  for(let delta=1;delta<=6;delta++) {
+    const i=(index+delta)%6;
+    if(predicate(i)) return i;
+  }
+  return -1;
+}
+const initialPlayers = [
+  {name:'You',kind:'human'},
+  {name:'Marco',kind:'tag'},
+  {name:'Sasha',kind:'lag'},
+  {name:'Ellis',kind:'nit'},
+  {name:'River',kind:'balanced'},
+  {name:'Drew',kind:'station'}
+];
+class PokerEngine {
+  constructor({initialStack=200, smallBlind=1, bigBlind=2, players=initialPlayers, random=Math.random}={}) {
+    if(players.length!==6) throw new Error('Six seats required in prototype');
+    this.random=random;
+    this.initialStack=initialStack;
+    this.sb=smallBlind;
+    this.bb=bigBlind;
+    this.players=players.map((p,i)=>({index:i,name:p.name,kind:p.kind,stack:initialStack, cards:[], bet:0, committed:0, folded:false, allIn:false, inHand:true, acted:false, raiseLocked:false, voluntary:false, preflopRaised:false}));
+    this.button=-1;
+    this.handNo=0;
+    this.stage='idle';
+    this.board=[];
+    this.log=[];
+    this.lastResult='';
+    this.winners=[];
+    this.currentBet=0;
+    this.lastFullRaise=bigBlind;
+    this.pending=new Set();
+    this.turn=-1;
+    this.deck=[];
+    this.session={hands:0, voluntary:0, preflopRaises:0};
+    this.startHand();
+  }
+  get pot() { return this.players.reduce((sum,p)=>sum+p.committed,0); }
+  eligible(i) { const p=this.players[i]; return p.inHand&&!p.folded; }
+  canAct(i) {return this.eligible(i)&&!this.players[i].allIn&&this.players[i].stack>0;}
+  logAction(message) {this.log.push(message); if(this.log.length>85)this.log.shift();}
+  draw() { const c=this.deck.pop(); if(!c) throw new Error('Deck exhausted'); return c; }
+  pushChips(i,amount) {
+    const p=this.players[i];
+    const n=Math.min(p.stack,Math.max(0,amount));
+    p.stack-=n;p.bet+=n;p.committed+=n;
+    if(!p.stack) p.allIn=true;
+    return n;
+  }
+  startHand() {
+    if(this.stage!=='idle'&&this.stage!=='complete') throw new Error('Current hand unfinished');
+    // Prototype maintains a full six-handed table. Bots buy back to 100BB between hands.
+    for(const p of this.players) if(p.kind!=='human'&&p.stack<this.bb) p.stack=this.initialStack;
+    if(this.players[0].stack<this.bb) {this.stage='rebuy';this.turn=-1;return;}
+    this.handNo++;
+    this.button=nextIn(this.button,i=>this.players[i].stack>0);
+    this.deck=shuffle(makeDeck(),this.random);
+    this.board=[];this.stage='preflop';this.lastResult='';this.winners=[];
+    this.log=[];
+    for(const p of this.players) {
+      p.cards=[this.draw(),this.draw()];p.bet=0;p.committed=0;p.folded=false;p.allIn=false;
+      p.inHand=p.stack>0;p.acted=false;p.raiseLocked=false;p.voluntary=false;p.preflopRaised=false;
+    }
+    const sbIndex=nextIn(this.button,i=>this.eligible(i));
+    const bbIndex=nextIn(sbIndex,i=>this.eligible(i));
+    this.smallBlindSeat=sbIndex;this.bigBlindSeat=bbIndex;
+    this.pushChips(sbIndex,this.sb);
+    this.pushChips(bbIndex,this.bb);
+    this.currentBet=Math.max(this.players[sbIndex].bet,this.players[bbIndex].bet);
+    this.lastFullRaise=this.bb;
+    this.pending=new Set(this.players.filter(p=>this.canAct(p.index)).map(p=>p.index));
+    this.turn=nextIn(bbIndex,i=>this.pending.has(i));
+    this.logAction(`Hand #${this.handNo} · $${this.sb}/$${this.bb} blinds · ${this.players[this.button].name} has the button`);
+    this.logAction(`${this.players[sbIndex].name} posts $${this.players[sbIndex].bet}; ${this.players[bbIndex].name} posts $${this.players[bbIndex].bet}`);
+    this.session.hands++;
+  }
+  rebuy() {
+    if(this.stage!=='rebuy'&&this.stage!=='complete') return false;
+    this.players[0].stack=this.initialStack;
+    if(this.stage==='rebuy')this.stage='complete';
+    this.startHand();return true;
+  }
+  legal(i=this.turn) {
+    if(i!==this.turn||!this.canAct(i)||!this.pending.has(i)) return null;
+    const p=this.players[i],toCall=Math.min(p.stack,Math.max(0,this.currentBet-p.bet));
+    const fullCall=Math.max(0,this.currentBet-p.bet);
+    const maxTo=p.bet+p.stack;
+    const minRaiseTo=this.currentBet===0?this.bb:this.currentBet+this.lastFullRaise;
+    const canRaise=!p.raiseLocked&&maxTo>this.currentBet;
+    return {toCall,fullCall,maxTo,minRaiseTo,canCheck:fullCall===0,canCall:fullCall>0,canRaise,allInIsRaise:maxTo>this.currentBet,
+      minLegalRaiseTo:Math.min(minRaiseTo,maxTo),canFullRaise:canRaise&&maxTo>=minRaiseTo};
+  }
+  act(i,action,raiseTo) {
+    const options=this.legal(i);
+    if(!options) throw new Error('It is not your turn');
+    const p=this.players[i], oldCurrent=this.currentBet;
+    let increased=false,fullRaise=false;
+    if(action==='fold') {
+      p.folded=true;
+      this.logAction(`${p.name} folds`);
+    } else if(action==='check') {
+      if(!options.canCheck)throw new Error('Cannot check facing a bet');
+      this.logAction(`${p.name} checks`);
+    } else if(action==='call') {
+      if(!options.canCall)throw new Error('Nothing to call');
+      const paid=this.pushChips(i,options.toCall);
+      this.logAction(`${p.name} calls $${paid}${p.allIn?' (all-in)':''}`);
+    } else if(action==='raise') {
+      if(!options.canRaise)throw new Error('Raising not allowed');
+      if(!Number.isInteger(raiseTo)||raiseTo<=this.currentBet||raiseTo>options.maxTo) throw new Error('Invalid raise size');
+      if(raiseTo<options.minRaiseTo&&raiseTo!==options.maxTo)throw new Error(`Minimum raise to $${options.minRaiseTo}`);
+      this.pushChips(i,raiseTo-p.bet);
+      this.currentBet=p.bet;
+      const delta=this.currentBet-oldCurrent;
+      fullRaise=delta>=this.lastFullRaise;
+      if(fullRaise) this.lastFullRaise=delta;
+      increased=true;
+      this.logAction(`${p.name} ${oldCurrent===0?'bets':'raises to'} $${p.bet}${p.allIn?' (all-in)':''}`);
+    } else throw new Error('Unknown action');
+    if(this.stage==='preflop' && i===0) {
+      if((action==='call'||action==='raise')&&!p.voluntary){p.voluntary=true;this.session.voluntary++;}
+      if(action==='raise'&&!p.preflopRaised){p.preflopRaised=true;this.session.preflopRaises++;}
+    }
+    if(fullRaise) {
+      // Full raises reopen betting. Incomplete all-in raises require a response
+      // but do not reopen raising for players who have already acted.
+      for(const other of this.players) {other.acted=false;other.raiseLocked=false;}
+    } else if(increased) {
+      for(const other of this.players) if(other.index!==i&&other.acted)other.raiseLocked=true;
+    }
+    p.acted=true;
+    this.pending.delete(i);
+    if(increased) for(const other of this.players) if(other.index!==i&&this.canAct(other.index)&&other.bet<this.currentBet) this.pending.add(other.index);
+    if(this.players.filter(q=>this.eligible(q.index)).length===1) return this.finishUncontested();
+    if(this.pending.size===0)return this.nextStreetOrShowdown();
+    this.turn=nextIn(i,j=>this.pending.has(j));
+    return this.stage;
+  }
+  nextStreetOrShowdown() {
+    if(this.stage==='river')return this.showdown();
+    const map={preflop:['flop',3],flop:['turn',1],turn:['river',1]};
+    const next=map[this.stage];
+    if(!next) return this.showdown();
+    this.stage=next[0];
+    for(let i=0;i<next[1];i++)this.board.push(this.draw());
+    this.currentBet=0;this.lastFullRaise=this.bb;
+    for(const p of this.players){p.bet=0;p.acted=false;p.raiseLocked=false;}
+    this.logAction(`— ${this.stage.toUpperCase()}: ${this.board.map(cardName).join(' ')} —`);
+    this.pending=new Set(this.players.filter(p=>this.canAct(p.index)).map(p=>p.index));
+    if(this.pending.size<=1) {
+      // One player can't bet against opponents who are all-in; run out automatically.
+      return this.nextStreetOrShowdown();
+    }
+    this.turn=nextIn(this.button,j=>this.pending.has(j));
+    return this.stage;
+  }
+  finishUncontested() {
+    const winner=this.players.find(p=>this.eligible(p.index));
+    const won=this.pot;
+    winner.stack+=won;
+    this.lastResult=`${winner.name} wins $${won} without showdown`;
+    this.winners=[winner.index];
+    this.logAction(this.lastResult);
+    this.turn=-1;this.stage='complete';return this.stage;
+  }
+  showdown() {
+    // Side-pot layering: each contributor pays into levels at their capped commitment.
+    // Folded hands contribute to pots but cannot receive winnings.
+    this.stage='showdown';
+    while(this.board.length<5)this.board.push(this.draw());
+    const levels=[...new Set(this.players.map(p=>p.committed).filter(n=>n>0))].sort((a,b)=>a-b);
+    let previous=0;
+    const gross=new Map(this.players.map(p=>[p.index,0]));
+    for(const level of levels) {
+      const contributors=this.players.filter(p=>p.committed>=level);
+      const amount=(level-previous)*contributors.length;
+      const eligible=contributors.filter(p=>this.eligible(p.index));
+      if(amount && eligible.length) {
+        let best=null,winners=[];
+        for(const p of eligible) {
+          const value=evaluate([...p.cards,...this.board]);
+          if(!best||compareHands(value,best)>0){best=value;winners=[p.index];}
+          else if(compareHands(value,best)===0)winners.push(p.index);
+        }
+        // Odd chips distributed beginning with first winner clockwise of button.
+        const order=Array.from({length:6},(_,k)=>(this.button+1+k)%6).filter(i=>winners.includes(i));
+        for(const i of order)gross.set(i,gross.get(i)+Math.floor(amount/winners.length));
+        for(let n=0;n<amount%winners.length;n++)gross.set(order[n],gross.get(order[n])+1);
+      }
+      previous=level;
+    }
+    let descriptions=[];this.winners=[];
+    for(const p of this.players) {
+      const gained=gross.get(p.index);
+      if(gained) {
+        p.stack+=gained;this.winners.push(p.index);
+        descriptions.push(`${p.name} wins $${gained} (${handCategories[evaluate([...p.cards,...this.board])[0]]})`);
+      }
+    }
+    this.lastResult=descriptions.join(' · ');
+    this.logAction(`— SHOWDOWN: ${this.board.map(cardName).join(' ')} —`);
+    this.logAction(this.lastResult);
+    this.stage='complete';this.turn=-1;
+    return this.stage;
+  }
+  // Sanitized public view for opponent logic; no other player's private cards included.
+  botView(i) {
+    const p=this.players[i];
+    if(p.kind==='human')throw new Error('Not a computer player');
+    return {self:{index:i,kind:p.kind,stack:p.stack,bet:p.bet,cards:p.cards.slice()},
+      board:this.board.slice(),pot:this.pot,street:this.stage,button:this.button,options:this.legal(i),
+      players:this.players.map(x=>({index:x.index,name:x.name,kind:x.kind,stack:x.stack,bet:x.bet,folded:x.folded,allIn:x.allIn,inHand:x.inHand}))};
+  }
+  get bankroll() {return this.players.reduce((sum,p)=>sum+p.stack,0)+(this.stage==='complete'?0:this.pot);}
+}
+
+
+
+const highestBase = r => ({14:10,13:8,12:7,11:6}[r]??r/2);
+function chenScore(cards) {
+  const [a,b]=cards;
+  const high=Math.max(a.r,b.r),low=Math.min(a.r,b.r);
+  if(high===low) return Math.max(5,highestBase(high)*2);
+  let s=highestBase(high);
+  if(a.s===b.s) s+=2;
+  const gap=high-low-1;
+  if(gap===1)s-=1;
+  else if(gap===2)s-=2;
+  else if(gap===3)s-=4;
+  else if(gap>=4)s-=5;
+  if(gap<=1 && high<12)s+=1;
+  return Math.ceil(Math.max(0,s)*2)/2;
+}
+const configs={
+  tag:{tight:9,pressure:0.10,aggression:0.30,bluff:0.10},
+  lag:{tight:6.5,pressure:0.03,aggression:0.48,bluff:0.19},
+  nit:{tight:11.0,pressure:0.16,aggression:0.21,bluff:0.025},
+  balanced:{tight:8,pressure:0.08,aggression:0.40,bluff:0.12},
+  station:{tight:7.5,pressure:-0.05,aggression:0.07,bluff:0.02}
+};
+function positionBonus(view) {
+  // Approximate late-position opportunity based on seats after the button.
+  const dist=(view.self.index-view.button+6)%6;
+  if(dist===0) return 1.5;
+  if(dist===5) return 1.1;
+  if(dist===4) return 0.6;
+  return 0;
+}
+function betTarget(view,factor) {
+  const {options,self,pot}=view;
+  const base=Math.max(2,Math.round(pot*factor));
+  if(options.canRaise) return Math.min(options.maxTo,Math.max(options.minLegalRaiseTo,view.street==='preflop'?Math.max(6,options.minLegalRaiseTo):view.options.fullCall+self.bet+base));
+  return null;
+}
+function chooseBotAction(view,random=Math.random) {
+  const {self,options,street,board,players}=view;
+  if(!options)throw new Error('No bot action available');
+  const cfg=configs[self.kind]||configs.tag;
+  const facing=options.fullCall>0;
+  const toCall=options.toCall;
+  const potOdds=facing?toCall/(view.pot+toCall):0;
+  const count=players.filter(p=>p.inHand&&!p.folded&&p.index!==self.index).length;
+  if(street==='preflop') {
+    const score=chenScore(self.cards)+positionBonus(view);
+    const adjusted=score-(facing&&options.fullCall>2?1.6:0);
+    const strongest=adjusted>=cfg.tight+4.0;
+    const playable=adjusted>=cfg.tight;
+    const premium=adjusted>=cfg.tight+2.5;
+    const canRaise=options.canRaise;
+    if(strongest&&canRaise&&random()<0.88) return {action:'raise',raiseTo:betTarget(view,1.0)};
+    if(premium&&canRaise&&random()<0.52) return {action:'raise',raiseTo:betTarget(view,0.67)};
+    if(facing) {
+      if(playable || (self.kind==='station'&&adjusted>=cfg.tight-2 && random()<0.6))return {action:'call'};
+      return {action:'fold'};
+    }
+    if(playable&&canRaise&&random()<(self.kind==='station'?0.18:0.64))return {action:'raise',raiseTo:betTarget(view,0.8)};
+    return {action:'check'};
+  }
+  // Approximate opponent-independent showdown equity against random hands.
+  // This is NOT a GTO solver or range-aware strategy.
+  const samples=count>3?72:115;
+  const eq=equityMonteCarlo(self.cards,board,Math.max(1,count),samples,random).equity;
+  const made=evaluate([...self.cards,...board]);
+  const pressure=cfg.pressure+(facing&&options.fullCall>view.pot*0.7?0.05:0);
+  const raiseThreshold=Math.max(0.46,0.69-(count===1?0.09:0));
+  if(facing) {
+    if(eq < potOdds+pressure && !(made[0]>=5&&toCall<self.stack*0.3))return {action:'fold'};
+    if(eq>raiseThreshold&&options.canRaise&&random()<cfg.aggression) return {action:'raise',raiseTo:betTarget(view,0.6)};
+    return {action:'call'};
+  }
+  if(options.canRaise) {
+    if(eq>Math.max(0.48,0.53-(count===1?0.08:0)) && random()<cfg.aggression+0.2)
+      return {action:'raise',raiseTo:betTarget(view,0.55)};
+    if(count===1&&random()<cfg.bluff&&eq<0.32)
+      return {action:'raise',raiseTo:betTarget(view,0.55)};
+  }
+  return {action:'check'};
+}
+
+function coachSnapshot(engine) {
+  const i=0,p=engine.players[i],opt=engine.legal(i);
+  if(!opt) return {available:false,title:'Coach is ready',body:'When it is your turn, open Coach to review the exact betting math and an estimated showdown equity.'};
+  const rivals=engine.players.filter(x=>x.inHand&&!x.folded&&x.index!==i);
+  const fullCall=opt.fullCall, call=opt.toCall;
+  const pot=engine.pot;
+  const sidePotRisk=engine.players.some(x=>x.allIn&&x.inHand&&!x.folded);
+  const potOdds=fullCall>0?call/(pot+call):0;
+  const eq=equityMonteCarlo(p.cards,engine.board,Math.max(1,rivals.length),600);
+  const score=chenScore(p.cards);
+  const per=round=>`${(round*100).toFixed(1)}%`;
+  let takeaway;
+  if(engine.stage==='preflop') {
+    if(score>=13) takeaway='This is a strong starting-hand candidate; consider your position and previous raises before choosing a size.';
+    else if(score>=9) takeaway='This hand is often playable, but position and the action before you are decisive.';
+    else takeaway='This is a marginal starting hand; avoid assuming that suited cards or an ace automatically justify a call.';
+  } else if(fullCall===0)takeaway='Checking costs nothing. Whether betting is better depends on which worse hands call and which better hands fold.';
+  else if(eq+0.02>=potOdds)takeaway='Equity versus random holdings exceeds the break-even call percentage, but the actual betting range may be much stronger.';
+  else takeaway='Estimated random-hand equity is below the immediate pot-odds threshold. Folding may be reasonable, but implied odds and ranges matter.';
+  return {
+    available:true,title:'Decision analysis',stage:engine.stage,pot,toCall:call,fullCall,potOdds,sidePotRisk,equity:eq.equity,confidence:`${eq.trials} Monte Carlo runouts`,opponents:rivals.length,score,
+    exact:fullCall>0?(sidePotRisk?`Simple full-pot ratio: $${call} / $${pot+call} = ${per(potOdds)}. An all-in player may create side pots, so this may NOT be your actual break-even equity requirement.`:`Calling $${call} to compete for a resulting $${pot+call} pot requires ${per(potOdds)} equity to break even on an immediate call, assuming no future betting and no rake.`):'Checking is free. The minimum opening bet is $2.',
+    estimate:`Estimated showdown equity: ${per(eq.equity)} versus ${rivals.length} uniformly random opponent hand${rivals.length===1?'':'s'} (including split-pot shares).`,
+    takeaway, caveat:'This is a mathematical training aid, NOT a solver-validated recommendation. Opponents do not actually hold random ranges after choosing to bet, call, or raise. No GTO/EV decision grade is claimed.'
+  };
+}
+
+
+
+const $ = id => document.getElementById(id);
+const engine=new PokerEngine();
+let mode='coach', analyzedHand=-1, analyzedStreet='', analyzedAtTurn=-1, latestCoach=null, raiseTo=6, timer=null, handArchive=[];
+try {handArchive=JSON.parse(localStorage.getItem('pokerlab-history-v1')||'[]');if(!Array.isArray(handArchive))handArchive=[];}catch{}
+const money=n=>`$${n.toLocaleString()}`;
+const suitSymbols={s:'♠',h:'♥',d:'♦',c:'♣'};
+const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
+const asPercent=n=>(100*n).toFixed(1)+'%';
+function cardHtml(c) {
+  if(!c)return '<div class="card-placeholder"></div>';
+  return `<div class="card-face ${c.s==='h'||c.s==='d'?'red':''}" aria-label="${esc(cardName(c))}"><span class="rank">${'23456789TJQKA'[c.r-2]}</span><span class="suit">${suitSymbols[c.s]}</span></div>`;
+}
+const backHtml=()=>'<div class="card-back" aria-label="Face down card"></div>';
+function phaseName(s){return {preflop:'PREFLOP',flop:'FLOP',turn:'TURN',river:'RIVER',complete:'HAND COMPLETE',rebuy:'REBUY REQUIRED'}[s]||s.toUpperCase();}
+function seatPosition(p) {
+  const relative=(p.index-engine.button+6)%6;
+  if(relative===0)return 'BTN';
+  if(relative===1)return 'SB';
+  if(relative===2)return 'BB';
+  if(relative===3)return 'UTG';
+  if(relative===4)return 'HJ';
+  return 'CO';
+}
+function renderSeats() {
+  const complete=engine.stage==='complete';
+  const showOpponentCards=complete && engine.board.length===5 && engine.players.filter(p=>p.inHand&&!p.folded).length>=2;
+  $('players').innerHTML=engine.players.map(p=>{
+    const revealed=p.index===0 || (showOpponentCards && !p.folded);
+    const holes=p.cards.length? p.cards.map(c=>revealed?cardHtml(c):backHtml()).join('') : '';
+    const folded=p.folded?'is-folded':'';
+    const winner=complete&&engine.winners.includes(p.index)?'is-winner':'';
+    return `<div class="seat seat-${p.index} ${engine.turn===p.index?'is-turn':''} ${folded} ${winner}"><div class="seat-hole">${holes}</div><div class="seat-card"><div class="player-name">${esc(p.name)}${p.index===0?' ★':''}</div><div class="player-stack">${money(p.stack)}</div><div class="player-meta">${p.folded?'FOLDED':p.allIn?'ALL IN':p.kind==='human'?'YOUR SEAT':p.kind.toUpperCase()}</div>${p.index===engine.button?'<div class="dealer">D</div>':''}</div>${p.bet>0&&engine.stage!=='complete'?`<div class="seat-bet">${money(p.bet)}</div>`:''}</div>`;
+  }).join('');
+}
+function clearAnalysis(){latestCoach=null;analyzedAtTurn=-1;analyzedStreet='';}
+function analyze() {
+  if(engine.turn!==0||!engine.legal(0)){latestCoach={available:false,title:'No decision right now',body:'You can analyze a decision when it is your turn. We will add after-hand coaching and replay in a later build.'};}
+  else { latestCoach=coachSnapshot(engine); analyzedHand=engine.handNo;analyzedStreet=engine.stage;analyzedAtTurn=engine.log.length; }
+  renderCoach();
+}
+function renderQuickCoach() {
+  const area=$('quick-coach');
+  if(mode==='play'||engine.turn!==0) {area.classList.add('hidden');area.innerHTML='';return;}
+  area.classList.remove('hidden');
+  if(!latestCoach?.available) {
+    area.innerHTML='<button id="quick-analyze">◎ Ask Coach · Reveal the math</button>';
+    return;
+  }
+  const c=latestCoach;
+  area.innerHTML=`<div class="quick-coach-head">COACH · MATH AT YOUR DECISION</div><div class="quick-coach-numbers"><span>${c.sidePotRisk?'Simple ratio':'Pot odds'}: <strong>${c.fullCall?asPercent(c.potOdds):'Free check'}</strong></span><span>Random-hand equity: <strong>${asPercent(c.equity)}</strong></span></div><p>${esc(c.takeaway)}</p><small>Random-opponent estimate only — not GTO advice. Full explanation below.</small>`;
+}
+function renderCoach() {
+  $('coach-mode-badge').textContent=mode==='play'?'HIDDEN':mode==='training'?'AUTO REVIEW':'ON DEMAND';
+  renderQuickCoach();
+  $('analyze').classList.toggle('hidden',mode==='play'||mode==='training');
+  $('analyze').disabled=engine.turn!==0;
+  if(mode==='play') {$('coach-view').innerHTML='<div class="coach-idle"><span class="coach-symbol">♠</span><h3>Play without hints.</h3><p>Coaching is hidden. Switch modes whenever you want.</p></div>';return;}
+  if(mode==='training'&&engine.turn===0&&(analyzedHand!==engine.handNo||analyzedStreet!==engine.stage||analyzedAtTurn!==engine.log.length)) {
+    latestCoach=coachSnapshot(engine);analyzedHand=engine.handNo;analyzedStreet=engine.stage;analyzedAtTurn=engine.log.length;
+    renderQuickCoach();
+  }
+  if(!latestCoach||!latestCoach.available) {
+    const msg=latestCoach?.body??(engine.turn===0?'Tap Analyze for mathematical information about your current decision.':'When it is your turn, tap Analyze to see the math behind your decision.');
+    $('coach-view').innerHTML=`<div class="coach-idle"><span class="coach-symbol">◎</span><h3>${latestCoach?.title||'Think before you act.'}</h3><p>${msg}</p></div>`;
+    return;
+  }
+  const c=latestCoach;
+  renderQuickCoach();
+  $('coach-view').innerHTML=`<div class="analysis-metrics"><div class="metric"><span>${c.sidePotRisk?'Simple pot ratio':'Pot odds to call'}</span><strong>${c.fullCall?asPercent(c.potOdds):'FREE'}</strong></div><div class="metric"><span>Equity vs random</span><strong>${asPercent(c.equity)}</strong></div></div><h3>Exact betting math</h3><p>${esc(c.exact)}</p><h3>Equity estimate</h3><p>${esc(c.estimate)}</p><h3>Learning note</h3><p>${esc(c.takeaway)}</p><p class="caveat">${esc(c.caveat)}</p>`;
+}
+function renderActions() {
+  const actions=$('decision-controls'),r=$('raise-controls');
+  r.classList.add('hidden');
+  const hero=engine.players[0];
+  if(engine.stage==='rebuy') {
+    actions.innerHTML='<button class="action-button next" data-action="rebuy">REBUY $200 TO CONTINUE</button>';
+    $('turn-status').textContent='You need a rebuy to continue.';$('status-bet').textContent='';return;
+  }
+  if(engine.stage==='complete') {
+    actions.innerHTML='<button class="action-button next" data-action="next">DEAL NEXT HAND →</button>';
+    $('turn-status').textContent='Hand complete';$('status-bet').textContent='';return;
+  }
+  if(engine.turn!==0) {
+    actions.innerHTML='<button class="action-button" disabled>COMPUTER PLAYING...</button>';
+    $('turn-status').textContent=engine.turn<0?'Finishing hand...':`${engine.players[engine.turn].name} is thinking…`;
+    $('status-bet').textContent='';return;
+  }
+  const legal=engine.legal(0);
+  if(!legal)return;
+  if(legal.canRaise && (raiseTo<legal.minLegalRaiseTo||raiseTo>legal.maxTo)) raiseTo=legal.minLegalRaiseTo;
+  $('turn-status').textContent='Your decision';
+  $('status-bet').textContent=legal.fullCall?`To call: ${money(legal.toCall)}`:'You can check for free';
+  let buttons='<button class="action-button danger" data-action="fold">FOLD</button>';
+  buttons+=legal.canCheck?'<button class="action-button" data-action="check">CHECK</button>':`<button class="action-button" data-action="call">${legal.toCall===hero.stack?'CALL ALL-IN':'CALL '+money(legal.toCall)}</button>`;
+  if(legal.canRaise) {
+    buttons+=`<button class="action-button primary" data-action="raise">${legal.fullCall?'RAISE':'BET'} ${money(raiseTo)}</button>`;
+    r.classList.remove('hidden');
+    const slider=$('raise-range');
+    slider.min=legal.minLegalRaiseTo;slider.max=legal.maxTo;
+    if(raiseTo<legal.minLegalRaiseTo||raiseTo>legal.maxTo)raiseTo=legal.minLegalRaiseTo;
+    slider.value=raiseTo;$('raise-total').textContent=money(raiseTo);
+  }
+  actions.innerHTML=buttons;
+}
+function render() {
+  renderSeats();
+  $('pot').textContent=money(engine.pot);
+  $('board').innerHTML=Array.from({length:5},(_,i)=>cardHtml(engine.board[i])).join('');
+  $('street').textContent=phaseName(engine.stage);
+  $('hand-index').textContent='#'+String(engine.handNo).padStart(3,'0');
+  $('log').innerHTML=engine.log.slice().reverse().map(line=>`<div class="log-row">${esc(line)}</div>`).join('');
+  $('hands-stat').textContent=engine.session.hands;
+  $('vpip-stat').textContent=engine.session.hands>0?asPercent(engine.session.voluntary/engine.session.hands):'—';
+  $('pfr-stat').textContent=engine.session.hands>0?asPercent(engine.session.preflopRaises/engine.session.hands):'—';
+  $('result').textContent=engine.stage==='complete'?engine.lastResult:'';
+  renderActions();renderCoach();
+}
+function saveHand() {
+  if(engine.stage!=='complete')return;
+  const record={number:engine.handNo,board:engine.board.map(cardName),hole:engine.players[0].cards.map(cardName),result:engine.lastResult,log:engine.log.slice(),date:new Date().toISOString()};
+  handArchive.unshift(record);handArchive=handArchive.slice(0,30);
+  try{localStorage.setItem('pokerlab-history-v1',JSON.stringify(handArchive));}catch{}
+}
+function proceedBots() {
+  clearTimeout(timer);
+  if(engine.stage==='complete'||engine.stage==='rebuy'||engine.turn===0)return;
+  timer=setTimeout(()=>{
+    if(engine.turn<0||engine.stage==='complete')return;
+    const i=engine.turn;
+    let decision;
+    try {decision=chooseBotAction(engine.botView(i));engine.act(i,decision.action,decision.raiseTo);}
+    catch(e) {console.error('Bot error:',e);try {const l=engine.legal(i);engine.act(i,l?.canCheck?'check':l?.canCall?'call':'fold');}catch(err){console.error(err);return;}}
+    if(engine.stage==='complete')saveHand();
+    clearAnalysis();render();proceedBots();
+  },360);
+}
+function heroAction(action) {
+  if(action==='next'){engine.startHand();clearAnalysis();raiseTo=6;render();proceedBots();return;}
+  if(action==='rebuy'){engine.rebuy();clearAnalysis();raiseTo=6;render();proceedBots();return;}
+  try{engine.act(0,action,action==='raise'?raiseTo:undefined);}
+  catch(e){$('result').textContent=e.message;return;}
+  if(engine.stage==='complete')saveHand();
+  clearAnalysis();raiseTo=6;render();proceedBots();
+}
+$('decision-controls').addEventListener('click',e=>{
+  const btn=e.target.closest('button[data-action]');if(btn)heroAction(btn.dataset.action);
+});
+$('raise-range').addEventListener('input',e=>{
+  raiseTo=Number(e.target.value);$('raise-total').textContent=money(raiseTo);
+  const main=$('decision-controls').querySelector('[data-action="raise"]');
+  if(main) main.textContent=(engine.legal(0)?.fullCall?'RAISE ':'BET ')+money(raiseTo);
+});
+$('raise-controls').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  const l=engine.legal(0);if(!l)return;
+  const amount=b.id==='max-bet'?l.maxTo:Math.round(engine.pot*Number(b.dataset.pct))+engine.currentBet;
+  raiseTo=Math.min(l.maxTo,Math.max(l.minLegalRaiseTo,amount));
+  $('raise-range').value=raiseTo;$('raise-range').dispatchEvent(new Event('input'));
+});
+for(const b of document.querySelectorAll('.mode-switch button'))b.addEventListener('click',()=>{
+  mode=b.dataset.mode;document.querySelectorAll('.mode-switch button').forEach(el=>el.classList.toggle('selected',el===b));
+  clearAnalysis();renderCoach();
+});
+$('analyze').addEventListener('click',analyze);
+$('quick-coach').addEventListener('click',e=>{if(e.target.closest('#quick-analyze')) analyze();});
+$('rules').addEventListener('click',()=>$('about-dialog').showModal());
+$('close-dialog').addEventListener('click',()=>$('about-dialog').close());
+render();proceedBots();
+
+</script>
+</body>
+</html>
