@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#09131a" />
-  <meta name="description" content="Poker Lab: practice eight-max Texas Hold'em tournaments at a realistic table with transparent, on-demand mathematical coaching." />
+  <meta name="description" content="Poker Lab: practice realistic multi-table Texas Hold'em tournaments at a realistic table with transparent, on-demand mathematical coaching." />
   <title>Poker Lab · Tournament Training</title>
   <style>
 :root{color-scheme:dark;--bg:#091218;--panel:#111f28;--line:#263a40;--muted:#8e9fa5;--ink:#f1f4ef;--gold:#d1b577;--green:#123e38;--green-2:#1b6152;--lightgreen:#9ec7a7;--danger:#e3a193}
@@ -75,27 +75,33 @@
 @media(min-width:651px){.game-surface{min-height:582px}.seat-2{left:7%}.seat-6{left:93%}}
 @media(max-width:650px){.game-surface{min-height:488px}.seat-2{left:12%}.seat-6{left:88%}}
 @media(max-width:385px){.game-surface{min-height:479px}.seat-2{left:14%}.seat-6{left:86%}}
+
+/* v0.3 field and seating; circular positions are computed per actual seat count. */
+.field-strip{margin:-8px 0 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:11px;color:#a0c5b4;flex-wrap:wrap}
+.field-strip strong{color:#e4cf98}.field-strip span{color:#9dafb4}.seat{transition:left .2s,top .2s}
+@media(max-width:650px){.field-strip{margin:-5px 0 13px;font-size:9px;gap:4px}.game-surface{min-height:500px}.felt{height:282px}.seat{width:75px}.seat-card{width:73px;padding:6px 3px}}
 </style>
 </head>
 <body>
   <div id="app" class="app-shell">
     <header class="topbar">
       <div class="identity"><div class="mark">♠</div><div><div class="wordmark">POKER<span>LAB</span></div><div class="micro">TOURNAMENT TRAINING LAB</div></div></div>
-      <div class="topnav"><span class="live-dot"></span><span class="setting-label">8-MAX TOURNAMENT</span><span class="top-pill">FREEZEOUT · TOP 3 PAID</span><button id="rules" class="help-button" title="About this build" aria-label="About this build">?</button></div>
+      <div class="topnav"><span class="live-dot"></span><span class="setting-label">MULTI-TABLE EVENT</span><span class="top-pill">LATE ENTRY · RE-ENTRIES</span><button id="rules" class="help-button" title="About this build" aria-label="About this build">?</button></div>
     </header>
     <main class="workspace">
       <section class="play-column">
         <div class="table-toolbar">
-          <div><div class="eyebrow">SIT & GO · TOURNAMENT LAB</div><h1>Build your tournament edge.</h1></div>
+          <div><div class="eyebrow">RUNNING ACES–STYLE PRACTICE · MTT</div><h1>Tournament training, your way.</h1></div>
           <div class="mode-switch" role="group" aria-label="Coaching mode"><button data-mode="play">PLAY</button><button data-mode="coach" class="selected">COACH</button><button data-mode="training">TRAIN</button></div>
         </div>
         <div class="tournament-dashboard" aria-label="Tournament status">
-          <div class="tourney-stat"><small>BLIND LEVEL</small><strong id="level-stat">1 · 10 / 20</strong><span id="next-level">Next in 6 hands</span></div>
-          <div class="tourney-stat"><small>PLAYERS LEFT</small><strong id="remaining-stat">8 / 8</strong><span id="tourney-phase">Top 3 paid</span></div>
-          <div class="tourney-stat"><small>YOUR STACK</small><strong id="stack-stat">100 BB</strong><span id="average-stat">Average 2,000</span></div>
+          <div class="tourney-stat"><small>BLIND LEVEL</small><strong id="level-stat">L1 · 50 / 100</strong><span id="next-level">Next in 5 hands</span></div>
+          <div class="tourney-stat"><small>PLAYERS LEFT</small><strong id="remaining-stat">36 live / 36 entries</strong><span id="tourney-phase">Late registration open</span></div>
+          <div class="tourney-stat"><small>YOUR STACK</small><strong id="stack-stat">120 BB</strong><span id="average-stat">6-handed · Avg 12,000</span></div>
         </div>
+        <div class="field-strip"><strong id="field-progress">36 entries · 6 tables</strong><span id="table-news">Registration is open</span></div>
         <div class="game-surface">
-          <div class="felt" aria-label="Eight-player Texas Hold'em tournament table">
+          <div class="felt" aria-label="Variable-size Texas Hold'em tournament table">
             <div class="felt-line"></div>
             <div class="felt-logo">POKER <strong>LAB</strong><span>NO LIMIT HOLD'EM</span></div>
             <div id="players"></div>
@@ -113,7 +119,7 @@
           <div id="raise-controls" class="raise-controls hidden"><div class="raise-caption"><label for="raise-range">Raise to</label><strong id="raise-total">$6</strong></div><input id="raise-range" type="range" step="1" min="4" max="200" value="6"/><div class="raise-shortcuts"><button data-pct="0.33">⅓ pot</button><button data-pct="0.5">½ pot</button><button data-pct="0.75">¾ pot</button><button data-pct="1">Pot</button><button id="max-bet">All in</button></div></div>
           <div id="result" class="result-line"></div>
         </div>
-        <div class="bottom-footnote">8-PLAYER SINGLE-TABLE FREEZEOUT · 2,000 STARTING CHIPS · LEVELS EVERY 6 HANDS · SIMULATED CHIPS ONLY · BOTS AND COACH ARE EXPERIMENTAL</div>
+        <div class="bottom-footnote">50–60 ENTRY MULTI-TABLE SIMULATION · 12,000 STARTING CHIPS · LEVELS EVERY 5 HANDS · DYNAMIC 6–9 PLAYER TABLES · SIMULATED CHIPS ONLY · BOTS AND COACH ARE EXPERIMENTAL</div>
       </section>
       <aside class="analysis-column">
         <div class="panel panel-coach">
@@ -130,7 +136,7 @@
       </aside>
     </main>
   </div>
-  <dialog id="about-dialog"><div class="dialog-title"><h2>About Poker Lab v0.1</h2><button id="close-dialog" aria-label="Close">×</button></div><p>This version is an eight-player, single-table no-rebuy tournament. All players start with 2,000 simulated chips. Blinds rise every six hands. Three places pay 50/30/20% of tournament points. No real money or deposits.</p><p><strong>Coach:</strong> immediate pot odds and Monte Carlo showdown-equity estimates against random holdings, plus effective big blinds and bubble reminders. It does not yet provide solver-verified GTO advice, ICM calculations, push/fold charts, or range-aware recommendations.</p><p><strong>Next:</strong> realistic blind/ante structures, genuine ICM and push/fold training, expert opponents, multi-table tournaments, saved progress, and hand review.</p><p>Your current tournament automatically saves on this device, including its hand and blind level. This prototype is not a real-money gambling application.</p><button id="reset-tournament" class="analyze-button" style="margin-top:12px">Restart tournament</button></dialog>
+  <dialog id="about-dialog"><div class="dialog-title"><h2>About Poker Lab v0.3</h2><button id="close-dialog" aria-label="Close">×</button></div><p><strong>Multi-table tournament trainer.</strong> Starts with 36 players at six-handed tables. Simulates up to 14 late arrivals and up to 8 optional bot re-entries. Late registration closes after 14 rounds. New tables open, existing tables consolidate, and opponents move between tables as needed.</p><p>12,000 starting chips; 50/100 opening blinds, five hands per level, and a big-blind ante beginning at level three. This is an illustrative training structure, not the verified Running Aces schedule. Top seven places receive simulated 35/22/15/10/8/6/4% payouts.</p><p><strong>Coach limitation:</strong> exact pot odds and Monte Carlo equity versus uniformly random hands do not establish the best play against an actual range. There is no validated GTO solver or ICM model yet. Opponents remain experimental heuristics.</p><p>Off-screen tables play one simulated hand per hand at your table. Game progress saves in this browser, not in a cloud account. No real-money features.</p><button id="reset-tournament" class="analyze-button" style="margin-top:12px">Restart tournament</button></dialog>
   <script>
 // Poker Lab's deterministic, dependency-free game engine.
 // Monetary units are integer simulated dollars/chips. No rake and no real-money functionality.
@@ -153,6 +159,12 @@ const TOURNAMENT_LEVELS = [
   [10,20],[15,30],[25,50],[40,80],[50,100],[75,150],
   [100,200],[150,300],[200,400],[300,600],[400,800],[600,1200],
   [800,1600],[1000,2000],[1500,3000]
+];
+const MTT_LEVELS = [
+  [50,100],[75,150],[100,200],[150,300],[200,400],[300,600],
+  [400,800],[600,1200],[800,1600],[1000,2000],[1500,3000],[2000,4000],
+  [3000,6000],[4000,8000],[6000,12000],[8000,16000],[10000,20000],[15000,30000],
+  [20000,40000],[30000,60000],[40000,80000],[50000,100000]
 ];
 const PRIZE_PERCENTAGES = [50,30,20];
 const desc = (a,b)=>b-a;
@@ -249,10 +261,14 @@ const initialPlayers = [
   {name:'Owen',kind:'balanced'}
 ];
 class PokerEngine {
-  constructor({initialStack=2000, smallBlind=10, bigBlind=20, players=initialPlayers, random=Math.random, handsPerLevel=6}={}) {
+  constructor({initialStack=2000, smallBlind=10, bigBlind=20, players=initialPlayers, random=Math.random, handsPerLevel=6, multiTable=false, blindLevels=TOURNAMENT_LEVELS,enableBBAnte=false,startImmediately=true}={}) {
     if(players.length<2||players.length>9) throw new Error('Tournament requires 2–9 seats');
     if(!Number.isInteger(handsPerLevel)||handsPerLevel<1) throw new Error('Invalid level length');
     this.handsPerLevel=handsPerLevel;
+    this.blindLevels=blindLevels;
+    this.enableBBAnte=enableBBAnte;
+    this.multiTable=multiTable;
+    this.ante=0;
     this.level=1;
     this.prizes=PRIZE_PERCENTAGES.slice();
     this.initialTotal=initialStack*players.length;
@@ -263,7 +279,7 @@ class PokerEngine {
     this.initialStack=initialStack;
     this.sb=smallBlind;
     this.bb=bigBlind;
-    this.players=players.map((p,i)=>({index:i,name:p.name,kind:p.kind,stack:initialStack, cards:[], bet:0, committed:0, folded:false, allIn:false, inHand:true, acted:false, raiseLocked:false, voluntary:false, preflopRaised:false,finish:null,handStartingStack:initialStack}));
+    this.players=players.map((p,i)=>({index:i,id:p.id??i,name:p.name,kind:p.kind,stack:p.stack??initialStack, cards:[], bet:0, committed:0, folded:false, allIn:false, inHand:true, acted:false, raiseLocked:false, voluntary:false, preflopRaised:false,finish:null,handStartingStack:p.stack??initialStack}));
     this.button=-1;
     this.handNo=0;
     this.stage='idle';
@@ -277,7 +293,7 @@ class PokerEngine {
     this.turn=-1;
     this.deck=[];
     this.session={hands:0, voluntary:0, preflopRaises:0};
-    this.startHand();
+    if(startImmediately)this.startHand();
   }
   get pot() { return this.players.reduce((sum,p)=>sum+p.committed,0); }
   eligible(i) { const p=this.players[i]; return p.inHand&&!p.folded; }
@@ -293,7 +309,7 @@ class PokerEngine {
   }
   startHand() {
     if(this.stage!=='idle'&&this.stage!=='complete') throw new Error('Current hand unfinished');
-    if(this.tournamentWinner!==null || this.players[0].stack<=0) {
+    if(!this.multiTable && (this.tournamentWinner!==null || this.players[0].stack<=0)) {
       this.stage='tournamentOver';this.turn=-1;return;
     }
     const alive=this.players.filter(p=>p.stack>0);
@@ -302,15 +318,16 @@ class PokerEngine {
       this.stage='tournamentOver';this.turn=-1;return;
     }
     this.handNo++;
-    this.level=Math.min(TOURNAMENT_LEVELS.length,Math.floor((this.handNo-1)/this.handsPerLevel)+1);
-    [this.sb,this.bb]=TOURNAMENT_LEVELS[this.level-1];
+    this.level=Math.min(this.blindLevels.length,Math.floor((this.handNo-1)/this.handsPerLevel)+1);
+    [this.sb,this.bb]=this.blindLevels[this.level-1];
+    this.ante=this.enableBBAnte&&this.level>=3?this.bb:0;
     const seatCount=this.players.length;
     this.button=nextIn(this.button,i=>this.players[i].stack>0,seatCount);
     this.deck=shuffle(makeDeck(),this.random);
     this.board=[];this.stage='preflop';this.lastResult='';this.winners=[];
     this.log=[];
     for(const p of this.players) {
-      p.cards=[this.draw(),this.draw()];p.bet=0;p.committed=0;p.folded=false;p.allIn=false;
+      p.cards=p.stack>0?[this.draw(),this.draw()]:[];p.bet=0;p.committed=0;p.folded=false;p.allIn=false;
       p.inHand=p.stack>0;p.acted=false;p.raiseLocked=false;p.voluntary=false;p.preflopRaised=false;
       p.handStartingStack=p.stack;
     }
@@ -321,6 +338,12 @@ class PokerEngine {
     this.smallBlindSeat=sbIndex;this.bigBlindSeat=bbIndex;
     this.pushChips(sbIndex,this.sb);
     this.pushChips(bbIndex,this.bb);
+    if(this.ante){
+      // Big blind ante is dead money, not part of the player's live bet.
+      const big=this.players[bbIndex], amount=Math.min(this.ante,big.stack);
+      big.stack-=amount;big.committed+=amount;if(big.stack===0)big.allIn=true;
+      this.logAction(`${big.name} posts big blind ante ${amount}`);
+    }
     this.currentBet=Math.max(this.players[sbIndex].bet,this.players[bbIndex].bet);
     this.lastFullRaise=this.bb;
     this.pending=new Set(this.players.filter(p=>this.canAct(p.index)).map(p=>p.index));
@@ -332,17 +355,18 @@ class PokerEngine {
   // No rebuys in a freezeout. A new tournament resets every seat and every statistic.
   restartTournament() {
     for(const p of this.players) {p.stack=this.initialStack;p.finish=null;p.handStartingStack=this.initialStack;}
-    this.button=-1;this.handNo=0;this.level=1;this.sb=TOURNAMENT_LEVELS[0][0];this.bb=TOURNAMENT_LEVELS[0][1];
+    this.button=-1;this.handNo=0;this.level=1;this.sb=this.blindLevels[0][0];this.bb=this.blindLevels[0][1];this.ante=0;
     this.finishOrder=[];this.heroFinish=null;this.tournamentWinner=null;
     this.session={hands:0,voluntary:0,preflopRaises:0};
     this.stage='idle';this.startHand();
   }
   get remaining(){return this.players.filter(p=>p.stack>0).length;}
   get averageStack(){return Math.round(this.initialTotal/Math.max(1,this.remaining));}
-  get nextBlinds(){return TOURNAMENT_LEVELS[Math.min(this.level,TOURNAMENT_LEVELS.length-1)];}
+  get nextBlinds(){return this.blindLevels[Math.min(this.level,this.blindLevels.length-1)];}
   get handsUntilLevel(){return this.handsPerLevel-((this.handNo-1)%this.handsPerLevel);}
   get placement(){return this.heroFinish??(this.remaining<=1?1:null);}
   finalizeEliminations() {
+    if(this.multiTable)return; // Global tournament director awards finishing places.
     const knocked=this.players.filter(p=>p.stack===0 && p.finish===null);
     // Players who bust in the same hand are ordered by chips at the start of that hand.
     knocked.sort((a,b)=>a.handStartingStack-b.handStartingStack||a.index-b.index);
@@ -352,7 +376,7 @@ class PokerEngine {
       this.logAction(`${p.name} finishes #${p.finish}`);
       if(p.index===0)this.heroFinish=p.finish;
     }
-    if(this.remaining===1){
+    if(!this.multiTable && this.remaining===1){
       const winner=this.players.find(p=>p.stack>0);
       this.tournamentWinner=winner.index;
       winner.finish=1;
@@ -455,7 +479,12 @@ class PokerEngine {
       const contributors=this.players.filter(p=>p.committed>=level);
       const amount=(level-previous)*contributors.length;
       const eligible=contributors.filter(p=>this.eligible(p.index));
-      if(amount && eligible.length) {
+      if(amount && !eligible.length){
+        // This betting tier has no live claimant. Its unmatched contributions
+        // must be returned, never removed from the tournament chip supply.
+        const each=level-previous;
+        for(const p of contributors)gross.set(p.index,gross.get(p.index)+each);
+      } else if(amount && eligible.length) {
         let best=null,winners=[];
         for(const p of eligible) {
           const value=evaluate([...p.cards,...this.board]);
@@ -535,7 +564,7 @@ function betTarget(view,factor) {
   if(options.canRaise) return Math.min(options.maxTo,Math.max(options.minLegalRaiseTo,view.street==='preflop'?Math.max(view.bigBlind*3,options.minLegalRaiseTo):view.options.fullCall+self.bet+base));
   return null;
 }
-function chooseBotAction(view,random=Math.random) {
+function chooseBotAction(view,random=Math.random,{fast=false}={}) {
   const {self,options,street,board,players}=view;
   if(!options)throw new Error('No bot action available');
   const cfg=configs[self.kind]||configs.tag;
@@ -561,7 +590,7 @@ function chooseBotAction(view,random=Math.random) {
   }
   // Approximate opponent-independent showdown equity against random hands.
   // This is NOT a GTO solver or range-aware strategy.
-  const samples=count>3?72:115;
+  const samples=fast?14:(count>3?72:115);
   const eq=equityMonteCarlo(self.cards,board,Math.max(1,count),samples,random).equity;
   const made=evaluate([...self.cards,...board]);
   const pressure=cfg.pressure+(facing&&options.fullCall>view.pot*0.7?0.05:0);
@@ -580,7 +609,7 @@ function chooseBotAction(view,random=Math.random) {
   return {action:'check'};
 }
 
-function coachSnapshot(engine) {
+function coachSnapshot(engine, context=null) {
   const i=0,p=engine.players[i],opt=engine.legal(i);
   if(!opt) return {available:false,title:'Coach is ready',body:'When it is your turn, open Coach to review the exact betting math and an estimated showdown equity.'};
   const rivals=engine.players.filter(x=>x.inHand&&!x.folded&&x.index!==i);
@@ -592,14 +621,17 @@ function coachSnapshot(engine) {
   const score=chenScore(p.cards);
   const bbStack=p.stack/engine.bb;
   const effectiveBb=Math.min(p.stack+p.bet,...rivals.map(x=>x.stack+x.bet))/engine.bb;
-  const bubble=engine.remaining===engine.prizes.length+1;
-  const moneyStatus=engine.remaining<=engine.prizes.length?'In the money':bubble?'On the bubble':'Before the bubble';
+  const remaining=context?.remaining??engine.remaining;
+  const paidPlaces=context?.prizes?.length??engine.prizes.length;
+  const bubble=remaining===paidPlaces+1;
+  const moneyStatus=remaining<=paidPlaces?'In the money':bubble?'On the bubble':'Before the bubble';
   const per=round=>`${(round*100).toFixed(1)}%`;
   let takeaway;
   if(engine.stage==='preflop') {
     if(score>=13) takeaway='This is a strong starting-hand candidate; consider your position and previous raises before choosing a size.';
     else if(score>=9) takeaway='This hand is often playable, but position and the action before you are decisive.';
     else takeaway='This is a marginal starting hand; avoid assuming that suited cards or an ace automatically justify a call.';
+    if(rivals.length<=5 && effectiveBb>=30)takeaway+=' You are short-handed and deep: your first-in opening ranges should account for fewer players behind you, especially in late position.';
     if(effectiveBb<12)takeaway+=' With fewer than 12 effective big blinds, push/fold strategy matters more than standard deep-stack raises.';
     else if(effectiveBb<25)takeaway+=' With a short-to-medium effective stack, watch your commitment to the pot.';
   } else if(fullCall===0)takeaway='Checking costs nothing. Whether betting is better depends on which worse hands call and which better hands fold.';
@@ -607,7 +639,7 @@ function coachSnapshot(engine) {
   else takeaway='Estimated random-hand equity is below the immediate pot-odds threshold. Folding may be reasonable, but implied odds and ranges matter.';
   return {
     available:true,title:'Tournament decision analysis',stage:engine.stage,pot,toCall:call,fullCall,potOdds,sidePotRisk,equity:eq.equity,confidence:`${eq.trials} Monte Carlo runouts`,opponents:rivals.length,score,
-    bbStack,effectiveBb,moneyStatus,bubble,remaining:engine.remaining,
+    bbStack,effectiveBb,moneyStatus,bubble,remaining,paidPlaces,tablePlayers:engine.players.length,registrationOpen:context?.registrationOpen??false,
     exact:fullCall>0?(sidePotRisk?`Simple full-pot ratio: $${call} / $${pot+call} = ${per(potOdds)}. An all-in player may create side pots, so this may NOT be your actual break-even equity requirement.`:`Calling $${call} to compete for a resulting $${pot+call} pot requires ${per(potOdds)} equity to break even on an immediate call, assuming no future betting and no rake.`):`Checking is free. Minimum bet is ${engine.bb} chips.`,
     estimate:`Estimated showdown equity: ${per(eq.equity)} versus ${rivals.length} uniformly random opponent hand${rivals.length===1?'':'s'} (including split-pot shares).`,
     takeaway, caveat:'Tournament warning: chip equity is NOT prize equity (ICM). This is not an ICM calculation, push/fold chart, or solver-verified recommendation. Equity assumes random opponent cards, not betting ranges.'
@@ -616,32 +648,194 @@ function coachSnapshot(engine) {
 
 
 
+
+// Multi-table tournament director. Every table is a real independent PokerEngine.
+// Off-screen tables play their hands when the human finishes a hand. Blinds
+// advance by hands, not elapsed wall-clock time, to support mobile practice.
+const MTT_DEFAULTS = Object.freeze({opening:36,late:14,reentryLimit:8,lateRounds:14,initialStack:12000,handsPerLevel:5,maxAtTable:9});
+const MTT_PAYOUTS = [35,22,15,10,8,6,4]; // illustrative, not Running Aces' real payout schedule
+const firstNames=['Alex','Jordan','Sam','Taylor','Morgan','Casey','Riley','Avery','Reese','Kai','Quinn','Jamie','Harper','Logan','Parker','Blake','Hayden','Devon','Cameron','Robin','Jess','Dana','Emery','Charlie','Finley','Drew','Sky','Rowan','Terry','Dakota'];
+const kinds=['tag','lag','nit','balanced','station','tag','balanced'];
+const clone=p=>({id:p.id,name:p.name,kind:p.kind,stack:p.stack,finish:p.finish??null});
+const engineFields=['players','button','handNo','stage','board','log','lastResult','winners','currentBet','lastFullRaise','turn','deck','session','level','sb','bb','ante','smallBlindSeat','bigBlindSeat'];
+
+class TournamentDirector {
+  constructor(settings={}){
+    this.settings={...MTT_DEFAULTS,...settings};
+    this.round=1;this.entries=0;this.nextId=0;this.lateCount=0;this.reentries=0;
+    this.knockouts=[];this.knownPlayers=[];this.tables=[];
+    this.heroFinish=null;this.championId=null;this.news=['Event started with partially filled tables'];
+    const roster=[];
+    for(let i=0;i<this.settings.opening;i++)roster.push(this.makePlayer(i===0));
+    this.installGroups(this.evenGroups(roster,this.tableCount(roster.length)),0);
+  }
+  get prizes(){return MTT_PAYOUTS;}
+  get remaining(){return this.tables.reduce((n,t)=>n+t.players.filter(p=>p.stack>0).length,0);}
+  get heroTable(){return this.tables.find(t=>t.players.some(p=>p.id===0))??null;}
+  get hero(){return this.heroTable?.players.find(p=>p.id===0)??null;}
+  get averageStack(){return Math.round(this.entries*this.settings.initialStack/Math.max(1,this.remaining));}
+  get registrationOpen(){return this.round<=this.settings.lateRounds;}
+  get completed(){return this.heroFinish!==null||this.championId!==null;}
+  get totalChips(){return this.tables.reduce((n,t)=>n+t.bankroll,0);}
+  get totalPotential(){return this.entries*this.settings.initialStack;}
+  get levels(){return MTT_LEVELS;}
+  tableCount(n,current=null){
+    if(n<=9)return 1;
+    if(current===null)return Math.ceil(n/6); // start at six-handed tables
+    let count=current;
+    while(count>1&&n<(count-1)*6)count--;
+    while(n>count*9)count++;
+    return count;
+  }
+  makePlayer(human=false,rebuyName=null){
+    const id=this.nextId++;
+    const name=human?'You':rebuyName??`${firstNames[(id-1)%firstNames.length]} ${String(Math.floor((id-1)/firstNames.length)+1).padStart(2,'0')}`;
+    const p={id,name,kind:human?'human':kinds[(id*11)%kinds.length],stack:this.settings.initialStack,finish:null};
+    this.entries++;this.knownPlayers.push({id,name,kind:p.kind});
+    return p;
+  }
+  evenGroups(roster,count){
+    const groups=Array.from({length:count},()=>[]);
+    // Hero remains seat zero within their table for clear phone controls.
+    const hero=roster.find(p=>p.id===0);
+    if(hero){groups[0].push(hero);roster=roster.filter(p=>p.id!==0);}
+    let index=hero?1:0;
+    for(const p of roster){groups[index%count].push(p);index++;}
+    return groups;
+  }
+  installGroups(groups,oldRound){
+    const priorButtons=new Map(this.tables.flatMap(t=>t.players.map(p=>[p.id,t.players[t.button]?.id])));
+    const priorHeroSession=this.heroTable?.session;
+    this.tables=groups.map((group,groupNo)=>{
+      const players=group.slice();
+      if(players.length<2||players.length>9)throw new Error(`Invalid table size ${players.length}`);
+      if(players.some(p=>p.id===0)){players.sort((a,b)=>a.id===0?-1:b.id===0?1:0);}
+      const t=new PokerEngine({players,initialStack:this.settings.initialStack,handsPerLevel:this.settings.handsPerLevel,multiTable:true,blindLevels:MTT_LEVELS,enableBBAnte:true,startImmediately:false});
+      if(oldRound>0){
+        const match=priorButtons.get(group.some(p=>p.id===0)?0:group[0]?.id);
+        const previous=players.findIndex(p=>p.id===match);
+        t.button=previous;
+        t.handNo=this.round-1;
+        t.stage='idle';t.startHand();
+      } else t.startHand();
+      if(players.some(p=>p.id===0)&&priorHeroSession)t.session={...priorHeroSession};
+      return t;
+    });
+  }
+  // Every hero click advances the other real tables by one matching hand.
+  // Bots only receive botView(), which contains no opponent hole cards.
+  simulateOffscreen(){
+    for(const table of this.tables){
+      if(table===this.heroTable)continue;
+      let safety=0;
+      while(table.stage!=='complete'&&table.stage!=='tournamentOver'){
+        if(++safety>2500)throw new Error('Off-table action limit exceeded');
+        const i=table.turn;
+        if(i<0)throw new Error('Off-table hand stalled');
+        const decision=chooseBotAction(table.botView(i),Math.random,{fast:true});
+        table.act(i,decision.action,decision.raiseTo);
+      }
+    }
+  }
+  settleKnockouts(){
+    const busted=[];
+    for(const table of this.tables)for(const p of table.players)if(p.stack===0 && p.finish===null)busted.push(p);
+    // When several off-screen players bust in a simulated round, chip count at
+    // start of their final hand breaks the tie; exact timestamps aren't modeled.
+    busted.sort((a,b)=>a.handStartingStack-b.handStartingStack||a.id-b.id);
+    const before=this.remaining+busted.length;
+    for(let i=0;i<busted.length;i++){
+      const p=busted[i];p.finish=before-i;
+      this.knockouts.push({id:p.id,place:p.finish,round:this.round,startingStack:p.handStartingStack});
+      if(p.id===0)this.heroFinish=p.finish;
+    }
+    if(busted.length)this.news.unshift(`${busted.length} elimination${busted.length===1?'':'s'} in round ${this.round}`);
+    if(this.remaining===1){const winner=this.tables.flatMap(t=>t.players).find(p=>p.stack>0);this.championId=winner?.id??null;if(this.championId===0)this.heroFinish=1;}
+    return busted;
+  }
+  addArrivals(busted){
+    const arrivals=[];
+    if(this.registrationOpen){
+      // Distribute late entries over the registration window: up to 14 people.
+      const target=Math.min(this.settings.late,Math.floor(this.round*this.settings.late/this.settings.lateRounds));
+      while(this.lateCount<target){arrivals.push(this.makePlayer());this.lateCount++;}
+      // Re-entry is optional for computer players and counts as a NEW entry.
+      for(const p of busted){
+        if(p.id===0||this.reentries>=this.settings.reentryLimit)continue;
+        if(Math.random()<0.8){arrivals.push(this.makePlayer(false,p.name+' R'));this.reentries++;}
+      }
+      if(arrivals.length)this.news.unshift(`${arrivals.length} new entries/re-entries joined`);
+    }
+    return arrivals;
+  }
+  advance(){
+    const heroTable=this.heroTable;
+    if(this.completed||!heroTable||heroTable.stage!=='complete')throw new Error('Finish your current hand before advancing');
+    this.simulateOffscreen();
+    const busted=this.settleKnockouts();
+    if(this.completed)return;
+    const arrivals=this.addArrivals(busted);
+    let groups=this.tables.map(t=>t.players.filter(p=>p.stack>0).map(clone));
+    // Fill the shortest table first; break/open tables only when field size requires it.
+    for(const p of arrivals){groups.sort((a,b)=>a.length-b.length);groups[0].push(p);}
+    const live=groups.flat();
+    const desired=this.tableCount(live.length,groups.length);
+    if(desired!==groups.length){groups=this.evenGroups(live,desired);this.news.unshift(`Tables consolidated / opened: ${desired} active`);}
+    else{
+      // Balance existing tables within one seat, moving bots rather than hero.
+      for(let k=0;k<30;k++){
+        groups.sort((a,b)=>a.length-b.length);
+        if(groups.at(-1).length-groups[0].length<=1)break;
+        const big=groups.at(-1),small=groups[0];
+        const idx=big.findLastIndex(p=>p.id!==0);
+        if(idx<0)break;
+        small.push(big.splice(idx,1)[0]);
+      }
+    }
+    this.round++;
+    // The constructor deals once; then the new round is explicitly dealt with
+    // correct level, starting stacks, and current seat assignments.
+    this.installGroups(groups,1);
+    this.news=this.news.slice(0,7);
+  }
+  export(){
+    const tables=this.tables.map(t=>{const x={pending:[...t.pending]};for(const key of engineFields)x[key]=t[key];return x;});
+    return {version:3,settings:this.settings,round:this.round,entries:this.entries,nextId:this.nextId,lateCount:this.lateCount,reentries:this.reentries,knockouts:this.knockouts,knownPlayers:this.knownPlayers,heroFinish:this.heroFinish,championId:this.championId,news:this.news,tables};
+  }
+  static restore(data){
+    if(data?.version!==3 || !Array.isArray(data.tables) || !data.tables.length || data.tables.length>15 || !Number.isInteger(data.entries))throw new Error('Invalid save');
+    const obj=Object.create(TournamentDirector.prototype);
+    for(const key of ['settings','round','entries','nextId','lateCount','reentries','knockouts','knownPlayers','heroFinish','championId','news'])obj[key]=data[key];
+    obj.tables=data.tables.map(saved=>{
+      const t=new PokerEngine({players:saved.players.map(clone),initialStack:obj.settings.initialStack,handsPerLevel:obj.settings.handsPerLevel,multiTable:true,blindLevels:MTT_LEVELS,enableBBAnte:true,startImmediately:false});
+      for(const key of engineFields)t[key]=saved[key];
+      t.pending=new Set(saved.pending);
+      return t;
+    });
+    if(!obj.heroTable||obj.heroTable.players[0].id!==0||obj.totalChips!==obj.totalPotential)throw new Error('Inconsistent save');
+    return obj;
+  }
+}
+
+
+
+
 const $ = id => document.getElementById(id);
-const SAVE_KEY='pokerlab-sitngo-v2';
-const PERSIST_FIELDS=['players','button','handNo','stage','board','log','lastResult','winners','currentBet','lastFullRaise','turn','deck','session','level','sb','bb','finishOrder','heroFinish','tournamentWinner','smallBlindSeat','bigBlindSeat'];
-function loadTournament() {
-  const e=new PokerEngine();
-  try {
-    const raw=localStorage.getItem(SAVE_KEY);
-    if(!raw)return e;
-    const data=JSON.parse(raw);
-    if(data?.version!==2||data.players?.length!==8||data.players.some(p=>!Number.isInteger(p.stack)||p.stack<0)||!Array.isArray(data.pending)||!Array.isArray(data.deck)||!['preflop','flop','turn','river','complete','tournamentOver'].includes(data.stage))return e;
-    if(data.players.reduce((n,p)=>n+p.stack,0)+(data.stage==='complete'||data.stage==='tournamentOver'?0:(data.players.reduce((n,p)=>n+p.committed,0)))!==16000)return e;
-    for(const field of PERSIST_FIELDS)if(Object.hasOwn(data,field))e[field]=data[field];
-    e.pending=new Set(data.pending);
-  } catch (err) {console.warn('Could not restore tournament',err);}
-  return e;
+const SAVE_KEY='pokerlab-mtt-v3';
+function loadTournament(){
+  try{const raw=localStorage.getItem(SAVE_KEY);if(raw)return TournamentDirector.restore(JSON.parse(raw));}
+  catch(e){console.warn('Saved tournament could not be restored',e);}
+  return new TournamentDirector();
 }
-const engine=loadTournament();
+let director=loadTournament();
+let engine=director.heroTable;
 function persistTournament(){
-  try {
-    const payload={version:2,pending:[...engine.pending]};
-    for(const key of PERSIST_FIELDS)payload[key]=engine[key];
-    localStorage.setItem(SAVE_KEY,JSON.stringify(payload));
-  }catch(err){console.warn('Could not save tournament',err);}
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify(director.export()));}
+  catch(e){console.warn('Could not save MTT',e);}
 }
+const globalContext=()=>({remaining:director.remaining,prizes:director.prizes,registrationOpen:director.registrationOpen});
 let mode='coach', analyzedHand=-1, analyzedStreet='', analyzedAtTurn=-1, latestCoach=null, raiseTo=60, timer=null, handArchive=[];
-try {handArchive=JSON.parse(localStorage.getItem('pokerlab-tournaments-v2')||'[]');if(!Array.isArray(handArchive))handArchive=[];}catch{}
+try {handArchive=JSON.parse(localStorage.getItem('pokerlab-mtt-hands-v3')||'[]');if(!Array.isArray(handArchive))handArchive=[];}catch{}
 const money=n=>n.toLocaleString();
 const suitSymbols={s:'♠',h:'♥',d:'♦',c:'♣'};
 const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
@@ -658,7 +852,8 @@ function seatPosition(p) {
   if(relative===1)return 'SB';
   if(relative===2)return 'BB';
   if(relative===engine.players.length-1)return 'CO';
-  return 'MP';
+  if(relative===engine.players.length-2)return 'HJ';
+  return relative===3?'UTG':`UTG+${relative-3}`;
 }
 function renderSeats() {
   const complete=engine.stage==='complete';
@@ -666,16 +861,18 @@ function renderSeats() {
   $('players').innerHTML=engine.players.map(p=>{
     const revealed=p.index===0 || (showOpponentCards && !p.folded);
     const holes=p.cards.length? p.cards.map(c=>revealed?cardHtml(c):backHtml()).join('') : '';
+    const angle=Math.PI/2+(2*Math.PI*p.index/engine.players.length);
+    const seatStyle=`left:${(50+46*Math.cos(angle)).toFixed(2)}%;top:${(50+50*Math.sin(angle)).toFixed(2)}%`;
     const folded=p.folded?'is-folded':'';
-    const busted=p.stack===0&&p.finish!==null?'is-busted':'';
+    const busted=p.stack===0?'is-busted':'';
     const winner=complete&&engine.winners.includes(p.index)?'is-winner':'';
-    return `<div class="seat seat-${p.index} ${engine.turn===p.index?'is-turn':''} ${folded} ${winner} ${busted}"><div class="seat-hole">${holes}</div><div class="seat-card"><div class="player-name">${esc(p.name)}${p.index===0?' ★':''}</div><div class="player-stack">${money(p.stack)}</div><div class="player-meta">${p.finish!==null?`OUT · #${p.finish}`:p.folded?'FOLDED':p.allIn?'ALL IN':p.kind==='human'?'YOUR SEAT':p.kind.toUpperCase()}</div>${p.index===engine.button?'<div class="dealer">D</div>':''}</div>${p.bet>0&&engine.stage!=='complete'?`<div class="seat-bet">${money(p.bet)}</div>`:''}</div>`;
+    return `<div class="seat seat-${p.index} ${engine.turn===p.index?'is-turn':''} ${folded} ${winner} ${busted}" style="${seatStyle}"><div class="seat-hole">${holes}</div><div class="seat-card"><div class="player-name">${esc(p.name)}${p.index===0?' ★':''}</div><div class="player-stack">${money(p.stack)}</div><div class="player-meta">${p.finish!==null?`OUT · #${p.finish}`:p.folded?'FOLDED':p.allIn?'ALL IN':p.kind==='human'?`YOU · ${seatPosition(p)}`:`${p.kind.toUpperCase()} · ${seatPosition(p)}`}</div>${p.index===engine.button?'<div class="dealer">D</div>':''}</div>${p.bet>0&&engine.stage!=='complete'?`<div class="seat-bet">${money(p.bet)}</div>`:''}</div>`;
   }).join('');
 }
 function clearAnalysis(){latestCoach=null;analyzedAtTurn=-1;analyzedStreet='';}
 function analyze() {
-  if(engine.turn!==0||!engine.legal(0)){latestCoach={available:false,title:'No live decision',body:'Analyze during your turn. Tournament hand replay and ICM drills are planned for a later build.'};}
-  else { latestCoach=coachSnapshot(engine); analyzedHand=engine.handNo;analyzedStreet=engine.stage;analyzedAtTurn=engine.log.length; }
+  if(engine.turn!==0||!engine.legal(0)){latestCoach={available:false,title:'No live decision',body:'Analyze during your turn. Solver-validated ranges and ICM drills are still planned.'};}
+  else { latestCoach=coachSnapshot(engine,globalContext()); analyzedHand=engine.handNo;analyzedStreet=engine.stage;analyzedAtTurn=engine.log.length; }
   renderCoach();
 }
 function renderQuickCoach() {
@@ -696,7 +893,7 @@ function renderCoach() {
   $('analyze').disabled=engine.turn!==0;
   if(mode==='play') {$('coach-view').innerHTML='<div class="coach-idle"><span class="coach-symbol">♠</span><h3>Play without hints.</h3><p>Coaching is hidden. Switch modes whenever you want.</p></div>';return;}
   if(mode==='training'&&engine.turn===0&&(analyzedHand!==engine.handNo||analyzedStreet!==engine.stage||analyzedAtTurn!==engine.log.length)) {
-    latestCoach=coachSnapshot(engine);analyzedHand=engine.handNo;analyzedStreet=engine.stage;analyzedAtTurn=engine.log.length;
+    latestCoach=coachSnapshot(engine,globalContext());analyzedHand=engine.handNo;analyzedStreet=engine.stage;analyzedAtTurn=engine.log.length;
     renderQuickCoach();
   }
   if(!latestCoach||!latestCoach.available) {
@@ -706,21 +903,21 @@ function renderCoach() {
   }
   const c=latestCoach;
   renderQuickCoach();
-  $('coach-view').innerHTML=`<div class="analysis-metrics"><div class="metric"><span>Effective stack</span><strong>${c.effectiveBb.toFixed(1)} BB</strong></div><div class="metric"><span>${c.sidePotRisk?'Simple pot ratio':'Pot odds to call'}</span><strong>${c.fullCall?asPercent(c.potOdds):'FREE'}</strong></div></div><h3>Tournament situation · ${esc(c.moneyStatus)}</h3><p>${c.remaining} remaining, top ${engine.prizes.length} paid. Your stack: ${c.bbStack.toFixed(1)} BB. ${c.bubble?'Bubble decisions can differ dramatically from chip-EV decisions.':''}</p><h3>Exact betting math</h3><p>${esc(c.exact)}</p><h3>Equity vs random hands</h3><p>${esc(c.estimate)}</p><h3>Learning note</h3><p>${esc(c.takeaway)}</p><p class="caveat">${esc(c.caveat)}</p>`;
+  $('coach-view').innerHTML=`<div class="analysis-metrics"><div class="metric"><span>Effective stack</span><strong>${c.effectiveBb.toFixed(1)} BB</strong></div><div class="metric"><span>${c.sidePotRisk?'Simple pot ratio':'Pot odds to call'}</span><strong>${c.fullCall?asPercent(c.potOdds):'FREE'}</strong></div></div><h3>Tournament situation · ${esc(c.moneyStatus)}</h3><p>${c.remaining} remaining across ${director.tables.length} tables, top ${director.prizes.length} paid. Current table: ${c.tablePlayers}-handed. Your stack: ${c.bbStack.toFixed(1)} BB. ${c.bubble?'Bubble decisions can differ dramatically from chip-EV decisions.':''}</p><h3>Exact betting math</h3><p>${esc(c.exact)}</p><h3>Equity vs random hands</h3><p>${esc(c.estimate)}</p><h3>Learning note</h3><p>${esc(c.takeaway)}</p><p class="caveat">${esc(c.caveat)}</p>`;
 }
 function renderActions() {
   const actions=$('decision-controls'),r=$('raise-controls');
   r.classList.add('hidden');
   const hero=engine.players[0];
-  if(engine.stage==='tournamentOver'||(engine.stage==='complete' && (engine.heroFinish!==null||engine.tournamentWinner!==null))) {
+  if(director.completed) {
     actions.innerHTML='<button class="action-button next" data-action="restart">START NEW TOURNAMENT →</button>';
-    $('turn-status').textContent=engine.heroFinish===1?'TOURNAMENT CHAMPION!':`You finished #${engine.heroFinish??'?'} of ${engine.players.length}`;
-    $('status-bet').textContent=engine.heroFinish&&engine.heroFinish<=engine.prizes.length?`Paid: ${engine.prizes[engine.heroFinish-1]}% of points`:'Tournament finished';
+    $('turn-status').textContent=director.heroFinish===1?'TOURNAMENT CHAMPION!':`You finished #${director.heroFinish??'?'} · ${director.entries} entries`;
+    $('status-bet').textContent=director.heroFinish&&director.heroFinish<=director.prizes.length?`Practice payout: ${director.prizes[director.heroFinish-1]}%`:'Tournament over';
     return;
   }
   if(engine.stage==='complete') {
     actions.innerHTML='<button class="action-button next" data-action="next">DEAL NEXT HAND →</button>';
-    $('turn-status').textContent='Hand complete';$('status-bet').textContent=`${engine.remaining} players left`;return;
+    $('turn-status').textContent='Hand complete';$('status-bet').textContent=`${director.remaining} active · ${director.tables.length} tables`;return;
   }
   if(engine.turn!==0) {
     actions.innerHTML='<button class="action-button" disabled>COMPUTER PLAYING...</button>';
@@ -745,14 +942,17 @@ function renderActions() {
   actions.innerHTML=buttons;
 }
 function render() {
+  engine=director.heroTable;
   renderSeats();
   $('pot').textContent=money(engine.pot);
-  $('level-stat').textContent=`${engine.level} · ${money(engine.sb)} / ${money(engine.bb)}`;
-  $('next-level').textContent=engine.level>=15?'Maximum blind level':`${engine.handsUntilLevel} hand${engine.handsUntilLevel===1?'':'s'} until ${engine.nextBlinds.join(' / ')}`;
-  $('remaining-stat').textContent=`${engine.remaining} / ${engine.players.length}`;
-  $('tourney-phase').textContent=engine.remaining<=3?'IN THE MONEY':engine.remaining===4?'ON THE BUBBLE':'Top 3 paid · 50/30/20';
+  $('level-stat').textContent=`L${engine.level} · ${money(engine.sb)} / ${money(engine.bb)}${engine.ante?' · ante '+money(engine.ante):''}`;
+  $('next-level').textContent=engine.level>=director.levels.length?'Maximum blind level':`${engine.handsUntilLevel} hand${engine.handsUntilLevel===1?'':'s'} until ${engine.nextBlinds.join(' / ')}`;
+  $('remaining-stat').textContent=`${director.remaining} live / ${director.entries} entries`;
+  $('tourney-phase').textContent=director.remaining<=director.prizes.length?'IN THE MONEY':director.remaining===director.prizes.length+1?'ON THE BUBBLE':director.registrationOpen?`Registration open · ${director.lateCount} late`:`${director.tables.length} tables · top ${director.prizes.length} paid`;
   $('stack-stat').textContent=`${(engine.players[0].stack/engine.bb).toFixed(1)} BB`;
-  $('average-stat').textContent=`Average ${money(engine.averageStack)}`;
+  $('average-stat').textContent=`${engine.players.length}-handed · Avg ${money(director.averageStack)}`;
+  $('field-progress').textContent=`${director.entries} entries · ${director.lateCount} late · ${director.reentries} re-entries · ${director.tables.length} tables`;
+  $('table-news').textContent=director.news[0]||'';
   $('board').innerHTML=Array.from({length:5},(_,i)=>cardHtml(engine.board[i])).join('');
   $('street').textContent=phaseName(engine.stage);
   $('hand-index').textContent='#'+String(engine.handNo).padStart(3,'0');
@@ -765,9 +965,9 @@ function render() {
 }
 function saveHand() {
   if(engine.stage!=='complete')return;
-  const record={number:engine.handNo,level:engine.level,blinds:[engine.sb,engine.bb],remaining:engine.remaining,board:engine.board.map(cardName),hole:engine.players[0].cards.map(cardName),result:engine.lastResult,log:engine.log.slice(),date:new Date().toISOString()};
+  const record={number:engine.handNo,level:engine.level,blinds:[engine.sb,engine.bb],remaining:director.remaining,entries:director.entries,tablePlayers:engine.players.length,board:engine.board.map(cardName),hole:engine.players[0].cards.map(cardName),result:engine.lastResult,log:engine.log.slice(),date:new Date().toISOString()};
   handArchive.unshift(record);handArchive=handArchive.slice(0,30);
-  try{localStorage.setItem('pokerlab-tournaments-v2',JSON.stringify(handArchive));}catch{}
+  try{localStorage.setItem('pokerlab-mtt-hands-v3',JSON.stringify(handArchive));}catch{}
 }
 function proceedBots() {
   clearTimeout(timer);
@@ -780,11 +980,11 @@ function proceedBots() {
     catch(e) {console.error('Bot error:',e);try {const l=engine.legal(i);engine.act(i,l?.canCheck?'check':l?.canCall?'call':'fold');}catch(err){console.error(err);return;}}
     if(engine.stage==='complete')saveHand();
     clearAnalysis();render();proceedBots();
-  },360);
+  },180);
 }
 function heroAction(action) {
-  if(action==='next'){engine.startHand();clearAnalysis();raiseTo=engine.bb*3;render();proceedBots();return;}
-  if(action==='restart'){engine.restartTournament();clearAnalysis();raiseTo=engine.bb*3;render();proceedBots();return;}
+  if(action==='next'){try{director.advance();engine=director.heroTable;}catch(e){$('result').textContent=e.message;return;}clearAnalysis();raiseTo=engine.bb*3;render();proceedBots();return;}
+  if(action==='restart'){director=new TournamentDirector();engine=director.heroTable;clearAnalysis();raiseTo=engine.bb*3;render();proceedBots();return;}
   try{engine.act(0,action,action==='raise'?raiseTo:undefined);}
   catch(e){$('result').textContent=e.message;return;}
   if(engine.stage==='complete')saveHand();
@@ -813,7 +1013,7 @@ $('analyze').addEventListener('click',analyze);
 $('quick-coach').addEventListener('click',e=>{if(e.target.closest('#quick-analyze')) analyze();});
 $('rules').addEventListener('click',()=>$('about-dialog').showModal());
 $('close-dialog').addEventListener('click',()=>$('about-dialog').close());
-$('reset-tournament').addEventListener('click',()=>{if(!confirm('Restart this tournament? Current chip stacks and progress will be lost.'))return;$('about-dialog').close();engine.restartTournament();clearAnalysis();raiseTo=engine.bb*3;render();proceedBots();});
+$('reset-tournament').addEventListener('click',()=>{if(!confirm('Restart this tournament? Current chip stacks and progress will be lost.'))return;$('about-dialog').close();director=new TournamentDirector();engine=director.heroTable;clearAnalysis();raiseTo=engine.bb*3;render();proceedBots();});
 render();proceedBots();
 
 </script>
