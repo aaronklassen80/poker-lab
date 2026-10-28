@@ -1,31 +1,22 @@
-import {PokerEngine, cardName,handCategories,evaluate} from './engine.js';
+import {cardName} from './engine.js';
+import {TournamentDirector, MTT_PAYOUTS} from './director.js';
 import {chooseBotAction,coachSnapshot} from './strategy.js';
 const $ = id => document.getElementById(id);
-const SAVE_KEY='pokerlab-sitngo-v2';
-const PERSIST_FIELDS=['players','button','handNo','stage','board','log','lastResult','winners','currentBet','lastFullRaise','turn','deck','session','level','sb','bb','finishOrder','heroFinish','tournamentWinner','smallBlindSeat','bigBlindSeat'];
-function loadTournament() {
-  const e=new PokerEngine();
-  try {
-    const raw=localStorage.getItem(SAVE_KEY);
-    if(!raw)return e;
-    const data=JSON.parse(raw);
-    if(data?.version!==2||data.players?.length!==8||data.players.some(p=>!Number.isInteger(p.stack)||p.stack<0)||!Array.isArray(data.pending)||!Array.isArray(data.deck)||!['preflop','flop','turn','river','complete','tournamentOver'].includes(data.stage))return e;
-    if(data.players.reduce((n,p)=>n+p.stack,0)+(data.stage==='complete'||data.stage==='tournamentOver'?0:(data.players.reduce((n,p)=>n+p.committed,0)))!==16000)return e;
-    for(const field of PERSIST_FIELDS)if(Object.hasOwn(data,field))e[field]=data[field];
-    e.pending=new Set(data.pending);
-  } catch (err) {console.warn('Could not restore tournament',err);}
-  return e;
+const SAVE_KEY='pokerlab-mtt-v3';
+function loadTournament(){
+  try{const raw=localStorage.getItem(SAVE_KEY);if(raw)return TournamentDirector.restore(JSON.parse(raw));}
+  catch(e){console.warn('Saved tournament could not be restored',e);}
+  return new TournamentDirector();
 }
-const engine=loadTournament();
+let director=loadTournament();
+let engine=director.heroTable;
 function persistTournament(){
-  try {
-    const payload={version:2,pending:[...engine.pending]};
-    for(const key of PERSIST_FIELDS)payload[key]=engine[key];
-    localStorage.setItem(SAVE_KEY,JSON.stringify(payload));
-  }catch(err){console.warn('Could not save tournament',err);}
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify(director.export()));}
+  catch(e){console.warn('Could not save MTT',e);}
 }
+const globalContext=()=>({remaining:director.remaining,prizes:director.prizes,registrationOpen:director.registrationOpen});
 let mode='coach', analyzedHand=-1, analyzedStreet='', analyzedAtTurn=-1, latestCoach=null, raiseTo=60, timer=null, handArchive=[];
-try {handArchive=JSON.parse(localStorage.getItem('pokerlab-tournaments-v2')||'[]');if(!Array.isArray(handArchive))handArchive=[];}catch{}
+try {handArchive=JSON.parse(localStorage.getItem('pokerlab-mtt-hands-v3')||'[]');if(!Array.isArray(handArchive))handArchive=[];}catch{}
 const money=n=>n.toLocaleString();
 const suitSymbols={s:'♠',h:'♥',d:'♦',c:'♣'};
 const esc=s=>String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
@@ -42,7 +33,8 @@ function seatPosition(p) {
   if(relative===1)return 'SB';
   if(relative===2)return 'BB';
   if(relative===engine.players.length-1)return 'CO';
-  return 'MP';
+  if(relative===engine.players.length-2)return 'HJ';
+  return relative===3?'UTG':`UTG+${relative-3}`;
 }
 function renderSeats() {
   const complete=engine.stage==='complete';
@@ -50,16 +42,18 @@ function renderSeats() {
   $('players').innerHTML=engine.players.map(p=>{
     const revealed=p.index===0 || (showOpponentCards && !p.folded);
     const holes=p.cards.length? p.cards.map(c=>revealed?cardHtml(c):backHtml()).join('') : '';
+    const angle=Math.PI/2+(2*Math.PI*p.index/engine.players.length);
+    const seatStyle=`left:${(50+46*Math.cos(angle)).toFixed(2)}%;top:${(50+50*Math.sin(angle)).toFixed(2)}%`;
     const folded=p.folded?'is-folded':'';
-    const busted=p.stack===0&&p.finish!==null?'is-busted':'';
+    const busted=p.stack===0?'is-busted':'';
     const winner=complete&&engine.winners.includes(p.index)?'is-winner':'';
-    return `<div class="seat seat-${p.index} ${engine.turn===p.index?'is-turn':''} ${folded} ${winner} ${busted}"><div class="seat-hole">${holes}</div><div class="seat-card"><div class="player-name">${esc(p.name)}${p.index===0?' ★':''}</div><div class="player-stack">${money(p.stack)}</div><div class="player-meta">${p.finish!==null?`OUT · #${p.finish}`:p.folded?'FOLDED':p.allIn?'ALL IN':p.kind==='human'?'YOUR SEAT':p.kind.toUpperCase()}</div>${p.index===engine.button?'<div class="dealer">D</div>':''}</div>${p.bet>0&&engine.stage!=='complete'?`<div class="seat-bet">${money(p.bet)}</div>`:''}</div>`;
+    return `<div class="seat seat-${p.index} ${engine.turn===p.index?'is-turn':''} ${folded} ${winner} ${busted}" style="${seatStyle}"><div class="seat-hole">${holes}</div><div class="seat-card"><div class="player-name">${esc(p.name)}${p.index===0?' ★':''}</div><div class="player-stack">${money(p.stack)}</div><div class="player-meta">${p.finish!==null?`OUT · #${p.finish}`:p.folded?'FOLDED':p.allIn?'ALL IN':p.kind==='human'?`YOU · ${seatPosition(p)}`:`${p.kind.toUpperCase()} · ${seatPosition(p)}`}</div>${p.index===engine.button?'<div class="dealer">D</div>':''}</div>${p.bet>0&&engine.stage!=='complete'?`<div class="seat-bet">${money(p.bet)}</div>`:''}</div>`;
   }).join('');
 }
 function clearAnalysis(){latestCoach=null;analyzedAtTurn=-1;analyzedStreet='';}
 function analyze() {
-  if(engine.turn!==0||!engine.legal(0)){latestCoach={available:false,title:'No live decision',body:'Analyze during your turn. Tournament hand replay and ICM drills are planned for a later build.'};}
-  else { latestCoach=coachSnapshot(engine); analyzedHand=engine.handNo;analyzedStreet=engine.stage;analyzedAtTurn=engine.log.length; }
+  if(engine.turn!==0||!engine.legal(0)){latestCoach={available:false,title:'No live decision',body:'Analyze during your turn. Solver-validated ranges and ICM drills are still planned.'};}
+  else { latestCoach=coachSnapshot(engine,globalContext()); analyzedHand=engine.handNo;analyzedStreet=engine.stage;analyzedAtTurn=engine.log.length; }
   renderCoach();
 }
 function renderQuickCoach() {
@@ -80,7 +74,7 @@ function renderCoach() {
   $('analyze').disabled=engine.turn!==0;
   if(mode==='play') {$('coach-view').innerHTML='<div class="coach-idle"><span class="coach-symbol">♠</span><h3>Play without hints.</h3><p>Coaching is hidden. Switch modes whenever you want.</p></div>';return;}
   if(mode==='training'&&engine.turn===0&&(analyzedHand!==engine.handNo||analyzedStreet!==engine.stage||analyzedAtTurn!==engine.log.length)) {
-    latestCoach=coachSnapshot(engine);analyzedHand=engine.handNo;analyzedStreet=engine.stage;analyzedAtTurn=engine.log.length;
+    latestCoach=coachSnapshot(engine,globalContext());analyzedHand=engine.handNo;analyzedStreet=engine.stage;analyzedAtTurn=engine.log.length;
     renderQuickCoach();
   }
   if(!latestCoach||!latestCoach.available) {
@@ -90,21 +84,21 @@ function renderCoach() {
   }
   const c=latestCoach;
   renderQuickCoach();
-  $('coach-view').innerHTML=`<div class="analysis-metrics"><div class="metric"><span>Effective stack</span><strong>${c.effectiveBb.toFixed(1)} BB</strong></div><div class="metric"><span>${c.sidePotRisk?'Simple pot ratio':'Pot odds to call'}</span><strong>${c.fullCall?asPercent(c.potOdds):'FREE'}</strong></div></div><h3>Tournament situation · ${esc(c.moneyStatus)}</h3><p>${c.remaining} remaining, top ${engine.prizes.length} paid. Your stack: ${c.bbStack.toFixed(1)} BB. ${c.bubble?'Bubble decisions can differ dramatically from chip-EV decisions.':''}</p><h3>Exact betting math</h3><p>${esc(c.exact)}</p><h3>Equity vs random hands</h3><p>${esc(c.estimate)}</p><h3>Learning note</h3><p>${esc(c.takeaway)}</p><p class="caveat">${esc(c.caveat)}</p>`;
+  $('coach-view').innerHTML=`<div class="analysis-metrics"><div class="metric"><span>Effective stack</span><strong>${c.effectiveBb.toFixed(1)} BB</strong></div><div class="metric"><span>${c.sidePotRisk?'Simple pot ratio':'Pot odds to call'}</span><strong>${c.fullCall?asPercent(c.potOdds):'FREE'}</strong></div></div><h3>Tournament situation · ${esc(c.moneyStatus)}</h3><p>${c.remaining} remaining across ${director.tables.length} tables, top ${director.prizes.length} paid. Current table: ${c.tablePlayers}-handed. Your stack: ${c.bbStack.toFixed(1)} BB. ${c.bubble?'Bubble decisions can differ dramatically from chip-EV decisions.':''}</p><h3>Exact betting math</h3><p>${esc(c.exact)}</p><h3>Equity vs random hands</h3><p>${esc(c.estimate)}</p><h3>Learning note</h3><p>${esc(c.takeaway)}</p><p class="caveat">${esc(c.caveat)}</p>`;
 }
 function renderActions() {
   const actions=$('decision-controls'),r=$('raise-controls');
   r.classList.add('hidden');
   const hero=engine.players[0];
-  if(engine.stage==='tournamentOver'||(engine.stage==='complete' && (engine.heroFinish!==null||engine.tournamentWinner!==null))) {
+  if(director.completed) {
     actions.innerHTML='<button class="action-button next" data-action="restart">START NEW TOURNAMENT →</button>';
-    $('turn-status').textContent=engine.heroFinish===1?'TOURNAMENT CHAMPION!':`You finished #${engine.heroFinish??'?'} of ${engine.players.length}`;
-    $('status-bet').textContent=engine.heroFinish&&engine.heroFinish<=engine.prizes.length?`Paid: ${engine.prizes[engine.heroFinish-1]}% of points`:'Tournament finished';
+    $('turn-status').textContent=director.heroFinish===1?'TOURNAMENT CHAMPION!':`You finished #${director.heroFinish??'?'} · ${director.entries} entries`;
+    $('status-bet').textContent=director.heroFinish&&director.heroFinish<=director.prizes.length?`Practice payout: ${director.prizes[director.heroFinish-1]}%`:'Tournament over';
     return;
   }
   if(engine.stage==='complete') {
     actions.innerHTML='<button class="action-button next" data-action="next">DEAL NEXT HAND →</button>';
-    $('turn-status').textContent='Hand complete';$('status-bet').textContent=`${engine.remaining} players left`;return;
+    $('turn-status').textContent='Hand complete';$('status-bet').textContent=`${director.remaining} active · ${director.tables.length} tables`;return;
   }
   if(engine.turn!==0) {
     actions.innerHTML='<button class="action-button" disabled>COMPUTER PLAYING...</button>';
@@ -129,14 +123,17 @@ function renderActions() {
   actions.innerHTML=buttons;
 }
 function render() {
+  engine=director.heroTable;
   renderSeats();
   $('pot').textContent=money(engine.pot);
-  $('level-stat').textContent=`${engine.level} · ${money(engine.sb)} / ${money(engine.bb)}`;
-  $('next-level').textContent=engine.level>=15?'Maximum blind level':`${engine.handsUntilLevel} hand${engine.handsUntilLevel===1?'':'s'} until ${engine.nextBlinds.join(' / ')}`;
-  $('remaining-stat').textContent=`${engine.remaining} / ${engine.players.length}`;
-  $('tourney-phase').textContent=engine.remaining<=3?'IN THE MONEY':engine.remaining===4?'ON THE BUBBLE':'Top 3 paid · 50/30/20';
+  $('level-stat').textContent=`L${engine.level} · ${money(engine.sb)} / ${money(engine.bb)}${engine.ante?' · ante '+money(engine.ante):''}`;
+  $('next-level').textContent=engine.level>=director.levels.length?'Maximum blind level':`${engine.handsUntilLevel} hand${engine.handsUntilLevel===1?'':'s'} until ${engine.nextBlinds.join(' / ')}`;
+  $('remaining-stat').textContent=`${director.remaining} live / ${director.entries} entries`;
+  $('tourney-phase').textContent=director.remaining<=director.prizes.length?'IN THE MONEY':director.remaining===director.prizes.length+1?'ON THE BUBBLE':director.registrationOpen?`Registration open · ${director.lateCount} late`:`${director.tables.length} tables · top ${director.prizes.length} paid`;
   $('stack-stat').textContent=`${(engine.players[0].stack/engine.bb).toFixed(1)} BB`;
-  $('average-stat').textContent=`Average ${money(engine.averageStack)}`;
+  $('average-stat').textContent=`${engine.players.length}-handed · Avg ${money(director.averageStack)}`;
+  $('field-progress').textContent=`${director.entries} entries · ${director.lateCount} late · ${director.reentries} re-entries · ${director.tables.length} tables`;
+  $('table-news').textContent=director.news[0]||'';
   $('board').innerHTML=Array.from({length:5},(_,i)=>cardHtml(engine.board[i])).join('');
   $('street').textContent=phaseName(engine.stage);
   $('hand-index').textContent='#'+String(engine.handNo).padStart(3,'0');
@@ -149,9 +146,9 @@ function render() {
 }
 function saveHand() {
   if(engine.stage!=='complete')return;
-  const record={number:engine.handNo,level:engine.level,blinds:[engine.sb,engine.bb],remaining:engine.remaining,board:engine.board.map(cardName),hole:engine.players[0].cards.map(cardName),result:engine.lastResult,log:engine.log.slice(),date:new Date().toISOString()};
+  const record={number:engine.handNo,level:engine.level,blinds:[engine.sb,engine.bb],remaining:director.remaining,entries:director.entries,tablePlayers:engine.players.length,board:engine.board.map(cardName),hole:engine.players[0].cards.map(cardName),result:engine.lastResult,log:engine.log.slice(),date:new Date().toISOString()};
   handArchive.unshift(record);handArchive=handArchive.slice(0,30);
-  try{localStorage.setItem('pokerlab-tournaments-v2',JSON.stringify(handArchive));}catch{}
+  try{localStorage.setItem('pokerlab-mtt-hands-v3',JSON.stringify(handArchive));}catch{}
 }
 function proceedBots() {
   clearTimeout(timer);
@@ -164,11 +161,11 @@ function proceedBots() {
     catch(e) {console.error('Bot error:',e);try {const l=engine.legal(i);engine.act(i,l?.canCheck?'check':l?.canCall?'call':'fold');}catch(err){console.error(err);return;}}
     if(engine.stage==='complete')saveHand();
     clearAnalysis();render();proceedBots();
-  },360);
+  },180);
 }
 function heroAction(action) {
-  if(action==='next'){engine.startHand();clearAnalysis();raiseTo=engine.bb*3;render();proceedBots();return;}
-  if(action==='restart'){engine.restartTournament();clearAnalysis();raiseTo=engine.bb*3;render();proceedBots();return;}
+  if(action==='next'){try{director.advance();engine=director.heroTable;}catch(e){$('result').textContent=e.message;return;}clearAnalysis();raiseTo=engine.bb*3;render();proceedBots();return;}
+  if(action==='restart'){director=new TournamentDirector();engine=director.heroTable;clearAnalysis();raiseTo=engine.bb*3;render();proceedBots();return;}
   try{engine.act(0,action,action==='raise'?raiseTo:undefined);}
   catch(e){$('result').textContent=e.message;return;}
   if(engine.stage==='complete')saveHand();
@@ -197,5 +194,5 @@ $('analyze').addEventListener('click',analyze);
 $('quick-coach').addEventListener('click',e=>{if(e.target.closest('#quick-analyze')) analyze();});
 $('rules').addEventListener('click',()=>$('about-dialog').showModal());
 $('close-dialog').addEventListener('click',()=>$('about-dialog').close());
-$('reset-tournament').addEventListener('click',()=>{if(!confirm('Restart this tournament? Current chip stacks and progress will be lost.'))return;$('about-dialog').close();engine.restartTournament();clearAnalysis();raiseTo=engine.bb*3;render();proceedBots();});
+$('reset-tournament').addEventListener('click',()=>{if(!confirm('Restart this tournament? Current chip stacks and progress will be lost.'))return;$('about-dialog').close();director=new TournamentDirector();engine=director.heroTable;clearAnalysis();raiseTo=engine.bb*3;render();proceedBots();});
 render();proceedBots();
