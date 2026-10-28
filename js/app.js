@@ -29,6 +29,7 @@ const backHtml=()=>'<div class="card-back" aria-label="Face down card"></div>';
 function phaseName(s){return {preflop:'PREFLOP',flop:'FLOP',turn:'TURN',river:'RIVER',complete:'HAND COMPLETE',tournamentOver:'TOURNAMENT FINISHED'}[s]||s.toUpperCase();}
 function seatPosition(p) {
   const relative=(p.index-engine.button+engine.players.length)%engine.players.length;
+  if(engine.players.length===2)return relative===0?'BTN / SB':'BB';
   if(relative===0)return 'BTN';
   if(relative===1)return 'SB';
   if(relative===2)return 'BB';
