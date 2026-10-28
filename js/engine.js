@@ -210,6 +210,7 @@ export class PokerEngine {
     this.turn=nextIn(bbIndex,i=>this.pending.has(i),seatCount);
     this.logAction(`Hand #${this.handNo} · Level ${this.level} · ${this.sb}/${this.bb} blinds · ${this.players[this.button].name} on the button`);
     this.logAction(`${this.players[sbIndex].name} posts ${this.players[sbIndex].bet}; ${this.players[bbIndex].name} posts ${this.players[bbIndex].bet}`);
+    if(this.pending.size===0)this.nextStreetOrShowdown();
     this.session.hands++;
   }
   // No rebuys in a freezeout. A new tournament resets every seat and every statistic.
