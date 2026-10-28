@@ -99,3 +99,9 @@ test('75 longer independent tournament simulations conserve chips through reentr
     }
   }
 });
+test('a table where all players are all-in on the forced blinds runs straight to showdown',async()=>{
+  const {PokerEngine,MTT_LEVELS}=await import('../js/engine.js');
+  const t=new PokerEngine({players:[{id:0,name:'You',kind:'human'},{id:1,name:'Bot',kind:'tag'}],initialStack:50,blindLevels:MTT_LEVELS,multiTable:true});
+  assert.equal(t.stage,'complete');
+  assert.equal(t.players.reduce((n,p)=>n+p.stack,0),100);
+});
