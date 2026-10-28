@@ -1,4 +1,5 @@
 import {evaluate,equityMonteCarlo} from './engine.js';
+
 const highestBase = r => ({14:10,13:8,12:7,11:6}[r]??r/2);
 export function chenScore(cards) {
   const [a,b]=cards;
@@ -36,7 +37,7 @@ function betTarget(view,factor) {
   if(options.canRaise) return Math.min(options.maxTo,Math.max(options.minLegalRaiseTo,view.street==='preflop'?Math.max(view.bigBlind*3,options.minLegalRaiseTo):view.options.fullCall+self.bet+base));
   return null;
 }
-export function chooseBotAction(view,random=Math.random) {
+export function chooseBotAction(view,random=Math.random,{fast=false}={}) {
   const {self,options,street,board,players}=view;
   if(!options)throw new Error('No bot action available');
   const cfg=configs[self.kind]||configs.tag;
@@ -62,7 +63,7 @@ export function chooseBotAction(view,random=Math.random) {
   }
   // Approximate opponent-independent showdown equity against random hands.
   // This is NOT a GTO solver or range-aware strategy.
-  const samples=count>3?72:115;
+  const samples=fast?14:(count>3?72:115);
   const eq=equityMonteCarlo(self.cards,board,Math.max(1,count),samples,random).equity;
   const made=evaluate([...self.cards,...board]);
   const pressure=cfg.pressure+(facing&&options.fullCall>view.pot*0.7?0.05:0);
@@ -81,7 +82,7 @@ export function chooseBotAction(view,random=Math.random) {
   return {action:'check'};
 }
 
-export function coachSnapshot(engine) {
+export function coachSnapshot(engine, context=null) {
   const i=0,p=engine.players[i],opt=engine.legal(i);
   if(!opt) return {available:false,title:'Coach is ready',body:'When it is your turn, open Coach to review the exact betting math and an estimated showdown equity.'};
   const rivals=engine.players.filter(x=>x.inHand&&!x.folded&&x.index!==i);
@@ -93,14 +94,17 @@ export function coachSnapshot(engine) {
   const score=chenScore(p.cards);
   const bbStack=p.stack/engine.bb;
   const effectiveBb=Math.min(p.stack+p.bet,...rivals.map(x=>x.stack+x.bet))/engine.bb;
-  const bubble=engine.remaining===engine.prizes.length+1;
-  const moneyStatus=engine.remaining<=engine.prizes.length?'In the money':bubble?'On the bubble':'Before the bubble';
+  const remaining=context?.remaining??engine.remaining;
+  const paidPlaces=context?.prizes?.length??engine.prizes.length;
+  const bubble=remaining===paidPlaces+1;
+  const moneyStatus=remaining<=paidPlaces?'In the money':bubble?'On the bubble':'Before the bubble';
   const per=round=>`${(round*100).toFixed(1)}%`;
   let takeaway;
   if(engine.stage==='preflop') {
     if(score>=13) takeaway='This is a strong starting-hand candidate; consider your position and previous raises before choosing a size.';
     else if(score>=9) takeaway='This hand is often playable, but position and the action before you are decisive.';
     else takeaway='This is a marginal starting hand; avoid assuming that suited cards or an ace automatically justify a call.';
+    if(rivals.length<=5 && effectiveBb>=30)takeaway+=' You are short-handed and deep: your first-in opening ranges should account for fewer players behind you, especially in late position.';
     if(effectiveBb<12)takeaway+=' With fewer than 12 effective big blinds, push/fold strategy matters more than standard deep-stack raises.';
     else if(effectiveBb<25)takeaway+=' With a short-to-medium effective stack, watch your commitment to the pot.';
   } else if(fullCall===0)takeaway='Checking costs nothing. Whether betting is better depends on which worse hands call and which better hands fold.';
@@ -108,7 +112,7 @@ export function coachSnapshot(engine) {
   else takeaway='Estimated random-hand equity is below the immediate pot-odds threshold. Folding may be reasonable, but implied odds and ranges matter.';
   return {
     available:true,title:'Tournament decision analysis',stage:engine.stage,pot,toCall:call,fullCall,potOdds,sidePotRisk,equity:eq.equity,confidence:`${eq.trials} Monte Carlo runouts`,opponents:rivals.length,score,
-    bbStack,effectiveBb,moneyStatus,bubble,remaining:engine.remaining,
+    bbStack,effectiveBb,moneyStatus,bubble,remaining,paidPlaces,tablePlayers:engine.players.length,registrationOpen:context?.registrationOpen??false,
     exact:fullCall>0?(sidePotRisk?`Simple full-pot ratio: $${call} / $${pot+call} = ${per(potOdds)}. An all-in player may create side pots, so this may NOT be your actual break-even equity requirement.`:`Calling $${call} to compete for a resulting $${pot+call} pot requires ${per(potOdds)} equity to break even on an immediate call, assuming no future betting and no rake.`):`Checking is free. Minimum bet is ${engine.bb} chips.`,
     estimate:`Estimated showdown equity: ${per(eq.equity)} versus ${rivals.length} uniformly random opponent hand${rivals.length===1?'':'s'} (including split-pot shares).`,
     takeaway, caveat:'Tournament warning: chip equity is NOT prize equity (ICM). This is not an ICM calculation, push/fold chart, or solver-verified recommendation. Equity assumes random opponent cards, not betting ranges.'
