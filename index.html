@@ -350,6 +350,7 @@ class PokerEngine {
     this.turn=nextIn(bbIndex,i=>this.pending.has(i),seatCount);
     this.logAction(`Hand #${this.handNo} · Level ${this.level} · ${this.sb}/${this.bb} blinds · ${this.players[this.button].name} on the button`);
     this.logAction(`${this.players[sbIndex].name} posts ${this.players[sbIndex].bet}; ${this.players[bbIndex].name} posts ${this.players[bbIndex].bet}`);
+    if(this.pending.size===0)this.nextStreetOrShowdown();
     this.session.hands++;
   }
   // No rebuys in a freezeout. A new tournament resets every seat and every statistic.
@@ -848,6 +849,7 @@ const backHtml=()=>'<div class="card-back" aria-label="Face down card"></div>';
 function phaseName(s){return {preflop:'PREFLOP',flop:'FLOP',turn:'TURN',river:'RIVER',complete:'HAND COMPLETE',tournamentOver:'TOURNAMENT FINISHED'}[s]||s.toUpperCase();}
 function seatPosition(p) {
   const relative=(p.index-engine.button+engine.players.length)%engine.players.length;
+  if(engine.players.length===2)return relative===0?'BTN / SB':'BB';
   if(relative===0)return 'BTN';
   if(relative===1)return 'SB';
   if(relative===2)return 'BB';
