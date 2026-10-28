@@ -20,6 +20,12 @@ export const TOURNAMENT_LEVELS = [
   [100,200],[150,300],[200,400],[300,600],[400,800],[600,1200],
   [800,1600],[1000,2000],[1500,3000]
 ];
+export const MTT_LEVELS = [
+  [50,100],[75,150],[100,200],[150,300],[200,400],[300,600],
+  [400,800],[600,1200],[800,1600],[1000,2000],[1500,3000],[2000,4000],
+  [3000,6000],[4000,8000],[6000,12000],[8000,16000],[10000,20000],[15000,30000],
+  [20000,40000],[30000,60000],[40000,80000],[50000,100000]
+];
 export const PRIZE_PERCENTAGES = [50,30,20];
 const desc = (a,b)=>b-a;
 const straightHigh = ranks => {
@@ -115,10 +121,14 @@ export const initialPlayers = [
   {name:'Owen',kind:'balanced'}
 ];
 export class PokerEngine {
-  constructor({initialStack=2000, smallBlind=10, bigBlind=20, players=initialPlayers, random=Math.random, handsPerLevel=6}={}) {
+  constructor({initialStack=2000, smallBlind=10, bigBlind=20, players=initialPlayers, random=Math.random, handsPerLevel=6, multiTable=false, blindLevels=TOURNAMENT_LEVELS,enableBBAnte=false,startImmediately=true}={}) {
     if(players.length<2||players.length>9) throw new Error('Tournament requires 2–9 seats');
     if(!Number.isInteger(handsPerLevel)||handsPerLevel<1) throw new Error('Invalid level length');
     this.handsPerLevel=handsPerLevel;
+    this.blindLevels=blindLevels;
+    this.enableBBAnte=enableBBAnte;
+    this.multiTable=multiTable;
+    this.ante=0;
     this.level=1;
     this.prizes=PRIZE_PERCENTAGES.slice();
     this.initialTotal=initialStack*players.length;
@@ -129,7 +139,7 @@ export class PokerEngine {
     this.initialStack=initialStack;
     this.sb=smallBlind;
     this.bb=bigBlind;
-    this.players=players.map((p,i)=>({index:i,name:p.name,kind:p.kind,stack:initialStack, cards:[], bet:0, committed:0, folded:false, allIn:false, inHand:true, acted:false, raiseLocked:false, voluntary:false, preflopRaised:false,finish:null,handStartingStack:initialStack}));
+    this.players=players.map((p,i)=>({index:i,id:p.id??i,name:p.name,kind:p.kind,stack:p.stack??initialStack, cards:[], bet:0, committed:0, folded:false, allIn:false, inHand:true, acted:false, raiseLocked:false, voluntary:false, preflopRaised:false,finish:null,handStartingStack:p.stack??initialStack}));
     this.button=-1;
     this.handNo=0;
     this.stage='idle';
@@ -143,7 +153,7 @@ export class PokerEngine {
     this.turn=-1;
     this.deck=[];
     this.session={hands:0, voluntary:0, preflopRaises:0};
-    this.startHand();
+    if(startImmediately)this.startHand();
   }
   get pot() { return this.players.reduce((sum,p)=>sum+p.committed,0); }
   eligible(i) { const p=this.players[i]; return p.inHand&&!p.folded; }
@@ -159,7 +169,7 @@ export class PokerEngine {
   }
   startHand() {
     if(this.stage!=='idle'&&this.stage!=='complete') throw new Error('Current hand unfinished');
-    if(this.tournamentWinner!==null || this.players[0].stack<=0) {
+    if(!this.multiTable && (this.tournamentWinner!==null || this.players[0].stack<=0)) {
       this.stage='tournamentOver';this.turn=-1;return;
     }
     const alive=this.players.filter(p=>p.stack>0);
@@ -168,15 +178,16 @@ export class PokerEngine {
       this.stage='tournamentOver';this.turn=-1;return;
     }
     this.handNo++;
-    this.level=Math.min(TOURNAMENT_LEVELS.length,Math.floor((this.handNo-1)/this.handsPerLevel)+1);
-    [this.sb,this.bb]=TOURNAMENT_LEVELS[this.level-1];
+    this.level=Math.min(this.blindLevels.length,Math.floor((this.handNo-1)/this.handsPerLevel)+1);
+    [this.sb,this.bb]=this.blindLevels[this.level-1];
+    this.ante=this.enableBBAnte&&this.level>=3?this.bb:0;
     const seatCount=this.players.length;
     this.button=nextIn(this.button,i=>this.players[i].stack>0,seatCount);
     this.deck=shuffle(makeDeck(),this.random);
     this.board=[];this.stage='preflop';this.lastResult='';this.winners=[];
     this.log=[];
     for(const p of this.players) {
-      p.cards=[this.draw(),this.draw()];p.bet=0;p.committed=0;p.folded=false;p.allIn=false;
+      p.cards=p.stack>0?[this.draw(),this.draw()]:[];p.bet=0;p.committed=0;p.folded=false;p.allIn=false;
       p.inHand=p.stack>0;p.acted=false;p.raiseLocked=false;p.voluntary=false;p.preflopRaised=false;
       p.handStartingStack=p.stack;
     }
@@ -187,6 +198,12 @@ export class PokerEngine {
     this.smallBlindSeat=sbIndex;this.bigBlindSeat=bbIndex;
     this.pushChips(sbIndex,this.sb);
     this.pushChips(bbIndex,this.bb);
+    if(this.ante){
+      // Big blind ante is dead money, not part of the player's live bet.
+      const big=this.players[bbIndex], amount=Math.min(this.ante,big.stack);
+      big.stack-=amount;big.committed+=amount;if(big.stack===0)big.allIn=true;
+      this.logAction(`${big.name} posts big blind ante ${amount}`);
+    }
     this.currentBet=Math.max(this.players[sbIndex].bet,this.players[bbIndex].bet);
     this.lastFullRaise=this.bb;
     this.pending=new Set(this.players.filter(p=>this.canAct(p.index)).map(p=>p.index));
@@ -198,17 +215,18 @@ export class PokerEngine {
   // No rebuys in a freezeout. A new tournament resets every seat and every statistic.
   restartTournament() {
     for(const p of this.players) {p.stack=this.initialStack;p.finish=null;p.handStartingStack=this.initialStack;}
-    this.button=-1;this.handNo=0;this.level=1;this.sb=TOURNAMENT_LEVELS[0][0];this.bb=TOURNAMENT_LEVELS[0][1];
+    this.button=-1;this.handNo=0;this.level=1;this.sb=this.blindLevels[0][0];this.bb=this.blindLevels[0][1];this.ante=0;
     this.finishOrder=[];this.heroFinish=null;this.tournamentWinner=null;
     this.session={hands:0,voluntary:0,preflopRaises:0};
     this.stage='idle';this.startHand();
   }
   get remaining(){return this.players.filter(p=>p.stack>0).length;}
   get averageStack(){return Math.round(this.initialTotal/Math.max(1,this.remaining));}
-  get nextBlinds(){return TOURNAMENT_LEVELS[Math.min(this.level,TOURNAMENT_LEVELS.length-1)];}
+  get nextBlinds(){return this.blindLevels[Math.min(this.level,this.blindLevels.length-1)];}
   get handsUntilLevel(){return this.handsPerLevel-((this.handNo-1)%this.handsPerLevel);}
   get placement(){return this.heroFinish??(this.remaining<=1?1:null);}
   finalizeEliminations() {
+    if(this.multiTable)return; // Global tournament director awards finishing places.
     const knocked=this.players.filter(p=>p.stack===0 && p.finish===null);
     // Players who bust in the same hand are ordered by chips at the start of that hand.
     knocked.sort((a,b)=>a.handStartingStack-b.handStartingStack||a.index-b.index);
@@ -218,7 +236,7 @@ export class PokerEngine {
       this.logAction(`${p.name} finishes #${p.finish}`);
       if(p.index===0)this.heroFinish=p.finish;
     }
-    if(this.remaining===1){
+    if(!this.multiTable && this.remaining===1){
       const winner=this.players.find(p=>p.stack>0);
       this.tournamentWinner=winner.index;
       winner.finish=1;
@@ -321,7 +339,12 @@ export class PokerEngine {
       const contributors=this.players.filter(p=>p.committed>=level);
       const amount=(level-previous)*contributors.length;
       const eligible=contributors.filter(p=>this.eligible(p.index));
-      if(amount && eligible.length) {
+      if(amount && !eligible.length){
+        // This betting tier has no live claimant. Its unmatched contributions
+        // must be returned, never removed from the tournament chip supply.
+        const each=level-previous;
+        for(const p of contributors)gross.set(p.index,gross.get(p.index)+each);
+      } else if(amount && eligible.length) {
         let best=null,winners=[];
         for(const p of eligible) {
           const value=evaluate([...p.cards,...this.board]);
